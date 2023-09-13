@@ -32,7 +32,7 @@ export function QuoteForm() {
       <Button type="submit">Add item</Button>
     </form>
     <p role="status">{message}</p>
-    <ul>{items.map(item => <li key={item.id}>{item.description} · {item.quantity} × {dollars(item.cents)}</li>)}</ul>
+    <ul>{items.map(item => <li key={item.id}>{item.description} · {item.quantity} × {dollars(item.cents)} <Button type="button" variant="ghost" aria-label={"Remove " + item.description} onClick={() => { setItems(items.filter(row => row.id !== item.id)); setMessage("Item removed."); }}>Remove</Button></li>)}</ul>
     {!items.length ? <p>No items yet. Add your first line item.</p> : null}
   </div>;
 }
