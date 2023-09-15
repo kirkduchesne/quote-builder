@@ -3,7 +3,7 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { dollars, parseCents } from '@/lib/money';
+import { calculateTotal, dollars, parseCents } from '@/lib/money';
 
 type Item = { id: number; description: string; quantity: number; cents: number };
 
@@ -13,6 +13,7 @@ export function QuoteForm() {
   const [quantity, setQuantity] = useState('1');
   const [price, setPrice] = useState('');
   const [message, setMessage] = useState('');
+  const totals = calculateTotal(items, 0);
   const nextId = useRef(1);
   function addItem(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -33,6 +34,7 @@ export function QuoteForm() {
     </form>
     <p role="status">{message}</p>
     <ul>{items.map(item => <li key={item.id}>{item.description} · {item.quantity} × {dollars(item.cents)} <Button type="button" variant="ghost" aria-label={"Remove " + item.description} onClick={() => { setItems(items.filter(row => row.id !== item.id)); setMessage("Item removed."); }}>Remove</Button></li>)}</ul>
+    <dl><dt>Subtotal</dt><dd>{dollars(totals.subtotal)}</dd><dt>Total</dt><dd>{dollars(totals.total)}</dd></dl>
     {!items.length ? <p>No items yet. Add your first line item.</p> : null}
   </div>;
 }
