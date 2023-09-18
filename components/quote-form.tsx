@@ -13,7 +13,9 @@ export function QuoteForm() {
   const [quantity, setQuantity] = useState('1');
   const [price, setPrice] = useState('');
   const [message, setMessage] = useState('');
-  const totals = calculateTotal(items, 0);
+  const [discount, setDiscount] = useState('0');
+  const validDiscount = /^\d{1,3}$/.test(discount) && Number(discount) <= 100;
+  const totals = calculateTotal(items, validDiscount ? Number(discount) : 0);
   const nextId = useRef(1);
   function addItem(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,7 +36,8 @@ export function QuoteForm() {
     </form>
     <p role="status">{message}</p>
     <ul>{items.map(item => <li key={item.id}>{item.description} · {item.quantity} × {dollars(item.cents)} <Button type="button" variant="ghost" aria-label={"Remove " + item.description} onClick={() => { setItems(items.filter(row => row.id !== item.id)); setMessage("Item removed."); }}>Remove</Button></li>)}</ul>
-    <dl><dt>Subtotal</dt><dd>{dollars(totals.subtotal)}</dd><dt>Total</dt><dd>{dollars(totals.total)}</dd></dl>
+    <div><label htmlFor="discount">Discount (%)</label><Input id="discount" inputMode="numeric" value={discount} onChange={e => setDiscount(e.target.value)} aria-invalid={!validDiscount} aria-describedby="discount-help" /><p id="discount-help">{validDiscount ? 'Whole percentages from 0 to 100.' : 'Enter a whole percentage from 0 to 100. Totals exclude the invalid discount.'}</p></div>
+    <dl><dt>Subtotal</dt><dd>{dollars(totals.subtotal)}</dd><dt>Discount</dt><dd>{dollars(totals.saving)}</dd><dt>Total</dt><dd>{dollars(totals.total)}</dd></dl>
     {!items.length ? <p>No items yet. Add your first line item.</p> : null}
   </div>;
 }
