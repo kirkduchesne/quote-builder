@@ -28,16 +28,17 @@ export function QuoteForm() {
     setDescription(''); setQuantity('1'); setPrice(''); setMessage('Item added.');
   }
   return <div>
-    <form onSubmit={addItem} className="space-y-4">
+    <form className="space-y-4 print:hidden" onSubmit={addItem}>
       <div><label htmlFor="description">Description</label><Input id="description" value={description} onChange={e => setDescription(e.target.value)} maxLength={120} required /></div>
       <div><label htmlFor="quantity">Quantity</label><Input id="quantity" inputMode="numeric" value={quantity} onChange={e => setQuantity(e.target.value)} required /></div>
       <div><label htmlFor="price">Unit price (USD)</label><Input id="price" inputMode="decimal" value={price} onChange={e => setPrice(e.target.value)} required /></div>
       <Button type="submit">Add item</Button>
     </form>
-    <p role="status">{message}</p>
-    <ul>{items.map(item => <li key={item.id}>{item.description} · {item.quantity} × {dollars(item.cents)} <Button type="button" variant="ghost" aria-label={"Remove " + item.description} onClick={() => { setItems(items.filter(row => row.id !== item.id)); setMessage("Item removed."); }}>Remove</Button></li>)}</ul>
-    <div><label htmlFor="discount">Discount (%)</label><Input id="discount" inputMode="numeric" value={discount} onChange={e => setDiscount(e.target.value)} aria-invalid={!validDiscount} aria-describedby="discount-help" /><p id="discount-help">{validDiscount ? 'Whole percentages from 0 to 100.' : 'Enter a whole percentage from 0 to 100. Totals exclude the invalid discount.'}</p></div>
+    <p role="status" className="print:hidden">{message}</p>
+    <ul>{items.map(item => <li key={item.id}>{item.description} · {item.quantity} × {dollars(item.cents)} <Button type="button" variant="ghost" className="print:hidden" aria-label={"Remove " + item.description} onClick={() => { setItems(items.filter(row => row.id !== item.id)); setMessage("Item removed."); }}>Remove</Button></li>)}</ul>
+    <div className="print:hidden"><label htmlFor="discount">Discount (%)</label><Input id="discount" inputMode="numeric" value={discount} onChange={e => setDiscount(e.target.value)} aria-invalid={!validDiscount} aria-describedby="discount-help" /><p id="discount-help">{validDiscount ? 'Whole percentages from 0 to 100.' : 'Enter a whole percentage from 0 to 100. Totals exclude the invalid discount.'}</p></div>
     <dl><dt>Subtotal</dt><dd>{dollars(totals.subtotal)}</dd><dt>Discount</dt><dd>{dollars(totals.saving)}</dd><dt>Total</dt><dd>{dollars(totals.total)}</dd></dl>
+    <Button type="button" className="mt-4 print:hidden" disabled={!items.length || !validDiscount} onClick={() => window.print()}>Print quote</Button>
     {!items.length ? <p>No items yet. Add your first line item.</p> : null}
   </div>;
 }
