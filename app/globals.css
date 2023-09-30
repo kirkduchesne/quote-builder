@@ -3,11 +3,22 @@
 @tailwind utilities;
 
 @layer base {
-  body { @apply bg-stone-100 text-foreground; }
-  label { @apply mb-2 block text-sm font-medium; }
+  body {
+    @apply bg-stone-100 text-foreground;
+  }
+  label {
+    @apply mb-2 block text-sm font-medium;
+  }
 }
 @media print {
-  body { background: white; }
-  main { max-width: none; padding: 0; }
-  li { break-inside: avoid; }
+  body {
+    background: white;
+  }
+  main {
+    max-width: none;
+    padding: 0;
+  }
+  li {
+    break-inside: avoid;
+  }
 }
