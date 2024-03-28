@@ -1,22 +1,29 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { calculateTotal, dollars, parseCents } from '@/lib/money';
 
-type Item = { id: number; description: string; quantity: number; cents: number };
+import { type Draft, type Item, newDraft } from '@/lib/drafts';
+const blank = newDraft('unsaved');
 
-export function QuoteForm() {
-  const [items, setItems] = useState<Item[]>([]);
+export function QuoteForm({ initial = blank, onSave, onDirty }: { initial?: Draft; onSave?: (draft: Draft) => void; onDirty?: (dirty: boolean) => void }) {
+  const [items, setItems] = useState<Item[]>(initial.items);
   const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [price, setPrice] = useState('');
   const [message, setMessage] = useState('');
-  const [discount, setDiscount] = useState('0');
+  const [discount, setDiscount] = useState(String(initial.discount));
   const validDiscount = /^\d{1,3}$/.test(discount) && Number(discount) <= 100;
   const totals = calculateTotal(items, validDiscount ? Number(discount) : 0);
-  const nextId = useRef(1);
+  const [name, setName] = useState(initial.name);
+  const [reference, setReference] = useState(initial.reference);
+  const [notes, setNotes] = useState(initial.notes);
+  const nextId = useRef(Math.max(0, ...initial.items.map(item => item.id)) + 1);
+  useEffect(() => {
+    onDirty?.(JSON.stringify({ ...initial, name, reference, notes, items, discount: Number(discount) }) !== JSON.stringify(initial) || !!description || !!price || quantity !== '1');
+  }, [name, reference, notes, items, discount, initial, onDirty, description, price, quantity]);
   const descriptionRef = useRef<HTMLInputElement>(null);
   function addItem(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,6 +56,11 @@ export function QuoteForm() {
   }
   return (
     <div className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm sm:p-8 print:border-0 print:shadow-none">
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 print:hidden">
+        <div><label htmlFor="quote-name">Quote name</label><Input id="quote-name" value={name} maxLength={80} onChange={e => setName(e.target.value)} /></div>
+        <div><label htmlFor="reference">Reference</label><Input id="reference" value={reference} maxLength={80} onChange={e => setReference(e.target.value)} /></div>
+      </div>
+      <h2 className="hidden text-2xl print:block">{name}</h2><p className="hidden print:block">{reference}</p>
       <form className="grid gap-4 sm:grid-cols-3 print:hidden" onSubmit={addItem}>
         <div>
           <label htmlFor="description">Description</label>
@@ -137,6 +149,7 @@ export function QuoteForm() {
         <dt>Total</dt>
         <dd>{dollars(totals.total)}</dd>
       </dl>
+      {onSave ? <Button type="button" className="mt-4 mr-3 print:hidden" disabled={!name.trim() || !validDiscount || !!description || !!price || quantity !== '1'} onClick={() => onSave({ ...initial, name: name.trim(), reference, notes, items, discount: Number(discount) })}>Save draft</Button> : null}
       <Button
         type="button"
         className="mt-4 print:hidden"
