@@ -1,4 +1,4 @@
-import { QuoteForm } from '@/components/quote-form';
+import { DraftWorkspace } from '@/components/draft-workspace';
 export default function Page() {
   return (
     <main className="mx-auto max-w-4xl p-6">
@@ -7,7 +7,7 @@ export default function Page() {
         <h1 className="text-4xl font-semibold">Quote Builder</h1>
         <p>Build a straightforward estimate, one line at a time.</p>
       </header>
-      <QuoteForm />
+      <DraftWorkspace />
     </main>
   );
 }
