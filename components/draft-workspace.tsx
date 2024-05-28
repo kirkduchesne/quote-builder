@@ -20,6 +20,12 @@ export function DraftWorkspace() {
       setMessage('Saved drafts could not be read. Session-only changes will leave the saved data untouched.');
     }
   }, []);
+  useEffect(() => {
+    function warn(event: BeforeUnloadEvent) { if (dirty) { event.preventDefault(); event.returnValue = ''; } }
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [dirty]);
+  function canLeave() { return !dirty || window.confirm('Discard unsaved changes to this quote?'); }
   function save(draft: Draft) {
     if (!validDraft(draft)) { setMessage('The draft has invalid values. Check the fields before saving.'); return; }
     const saved = drafts.some(d => d.id === draft.id) ? drafts.map(d => d.id === draft.id ? draft : d) : [...drafts, draft];
@@ -30,5 +36,5 @@ export function DraftWorkspace() {
     catch { setMessage('Storage is unavailable or full. Draft kept for this session only.'); }
   }
   if (!active) return <p role="status">Loading saved drafts…</p>;
-  return <><p role="status" className="mb-4 print:hidden">{message}</p><QuoteForm key={active.id} initial={active} onSave={save} onDirty={setDirty} /></>;
+  return <><div className="mb-4 flex flex-wrap items-end gap-3 print:hidden"><div><label htmlFor="draft-picker">Saved drafts</label><select id="draft-picker" className="h-10 max-w-full rounded border p-2" value={drafts.some(d => d.id === active.id) ? active.id : ''} onChange={e => { const selected = drafts.find(d => d.id === e.target.value); if (selected && canLeave()) { setActive(selected); setDirty(false); } }}><option value="" disabled>Unsaved quote</option>{drafts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select></div><Button type="button" onClick={() => { if (canLeave()) { setActive(newDraft(String(Date.now()))); setDirty(false); } }}>New quote</Button></div><p role="status" className="mb-4 print:hidden">{message}</p><QuoteForm key={active.id} initial={active} onSave={save} onDirty={setDirty} /></>;
 }
