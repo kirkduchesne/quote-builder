@@ -35,6 +35,14 @@ export function DraftWorkspace() {
     try { localStorage.setItem(storageKey, JSON.stringify({ version: 1, drafts: saved })); setMessage('Draft saved in this browser.'); }
     catch { setMessage('Storage is unavailable or full. Draft kept for this session only.'); }
   }
+  function deleteActive() {
+    if (!active || !window.confirm('Delete this saved quote and discard any unsaved changes?')) return;
+    const remaining = drafts.filter(d => d.id !== active.id);
+    setDrafts(remaining); setActive(remaining[0] || newDraft(String(Date.now()))); setDirty(false);
+    if (blocked) { setMessage('Draft removed for this session only.'); return; }
+    try { localStorage.setItem(storageKey, JSON.stringify({ version: 1, drafts: remaining })); setMessage('Draft deleted.'); }
+    catch { setMessage('Storage failed. Deletion is session-only; the saved draft may return after reload.'); }
+  }
   if (!active) return <p role="status">Loading saved drafts…</p>;
-  return <><div className="mb-4 flex flex-wrap items-end gap-3 print:hidden"><div><label htmlFor="draft-picker">Saved drafts</label><select id="draft-picker" className="h-10 max-w-full rounded border p-2" value={drafts.some(d => d.id === active.id) ? active.id : ''} onChange={e => { const selected = drafts.find(d => d.id === e.target.value); if (selected && canLeave()) { setActive(selected); setDirty(false); } }}><option value="" disabled>Unsaved quote</option>{drafts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select></div><Button type="button" onClick={() => { if (canLeave()) { setActive(newDraft(String(Date.now()))); setDirty(false); } }}>New quote</Button></div><p role="status" className="mb-4 print:hidden">{message}</p><QuoteForm key={active.id} initial={active} onSave={save} onDirty={setDirty} /></>;
+  return <><div className="mb-4 flex flex-wrap items-end gap-3 print:hidden"><div><label htmlFor="draft-picker">Saved drafts</label><select id="draft-picker" className="h-10 max-w-full rounded border p-2" value={drafts.some(d => d.id === active.id) ? active.id : ''} onChange={e => { const selected = drafts.find(d => d.id === e.target.value); if (selected && canLeave()) { setActive(selected); setDirty(false); } }}><option value="" disabled>Unsaved quote</option>{drafts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select></div><Button type="button" onClick={() => { if (canLeave()) { setActive(newDraft(String(Date.now()))); setDirty(false); } }}>New quote</Button><Button type="button" variant="outline" disabled={!drafts.some(d => d.id === active.id)} onClick={deleteActive}>Delete draft</Button></div><p role="status" className="mb-4 print:hidden">{message}</p><QuoteForm key={active.id} initial={active} onSave={save} onDirty={setDirty} /></>;
 }
