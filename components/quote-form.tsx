@@ -147,6 +147,9 @@ export function QuoteForm({ initial = blank, onSave, onDirty }: { initial?: Draf
             : 'Enter a whole percentage from 0 to 100. Totals exclude the invalid discount.'}
         </p>
       </div>
+      <div className="mt-5 print:hidden"><label htmlFor="notes">Quote notes</label><textarea id="notes" className="w-full rounded border border-input p-3" value={notes} maxLength={1000} rows={3} onChange={e => setNotes(e.target.value)} /></div>
+      {notes ? <p className="hidden whitespace-pre-wrap break-words print:block">{notes}</p> : null}
+      <p className="mt-4 text-sm print:hidden">Finish or cancel the current line item before saving or printing. Save draft also saves changes to its name.</p>
       <dl className="mt-6 grid grid-cols-2 gap-3 border-t border-stone-200 pt-4 text-lg">
         <dt>Subtotal</dt>
         <dd>{dollars(totals.subtotal)}</dd>
@@ -159,7 +162,7 @@ export function QuoteForm({ initial = blank, onSave, onDirty }: { initial?: Draf
       <Button
         type="button"
         className="mt-4 print:hidden"
-        disabled={!items.length || !validDiscount}
+        disabled={!items.length || !validDiscount || !name.trim() || !!description || !!price || quantity !== '1'}
         onClick={() => window.print()}
       >
         Print quote
