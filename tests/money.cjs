@@ -28,3 +28,6 @@ for (const item of [
   { quantity: 1, cents: 0.5 },
 ])
   assert.throws(() => calculateTotal([item], 0));
+assert.equal(calculateTotal(Array.from({length:100},()=>({quantity:999,cents:99999999})),1).total,9890099901099);
+assert.equal(parseCents('999999.99'),99999999);
+assert.equal(calculateTotal([{quantity:1,cents:1}],50).total,0);

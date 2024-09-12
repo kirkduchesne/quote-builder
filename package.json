@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "tsc lib/money.ts --outDir /tmp/quote-builder-tests --module commonjs --target es2020 --skipLibCheck && node tests/money.cjs"
+    "test": "tsc lib/money.ts lib/drafts.ts --outDir /tmp/quote-builder-tests --module commonjs --target es2020 --skipLibCheck && node tests/money.cjs && node tests/drafts.cjs"
   },
   "dependencies": {
     "next": "14.0.4",
