@@ -1,35 +1,67 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { calculateTotal, dollars, parseCents } from '@/lib/money';
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { calculateTotal, dollars, parseCents } from "@/lib/money";
 
-import { type Draft, type Item, newDraft } from '@/lib/drafts';
-const blank = newDraft('unsaved');
+import { type Draft, type Item, newDraft, unusedItemId } from "@/lib/drafts";
+const blank = newDraft("unsaved");
 
-export function QuoteForm({ initial = blank, onSave, onDirty }: { initial?: Draft; onSave?: (draft: Draft) => void; onDirty?: (dirty: boolean) => void }) {
+export function QuoteForm({
+  initial = blank,
+  onSave,
+  onDirty,
+}: {
+  initial?: Draft;
+  onSave?: (draft: Draft) => void;
+  onDirty?: (dirty: boolean) => void;
+}) {
   const [items, setItems] = useState<Item[]>(initial.items);
   const [editing, setEditing] = useState<number | null>(null);
-  const [description, setDescription] = useState('');
-  const [quantity, setQuantity] = useState('1');
-  const [price, setPrice] = useState('');
-  const [message, setMessage] = useState('');
+  const [description, setDescription] = useState("");
+  const [quantity, setQuantity] = useState("1");
+  const [price, setPrice] = useState("");
+  const [message, setMessage] = useState("");
   const [discount, setDiscount] = useState(String(initial.discount));
   const validDiscount = /^\d{1,3}$/.test(discount) && Number(discount) <= 100;
   const totals = calculateTotal(items, validDiscount ? Number(discount) : 0);
   const [name, setName] = useState(initial.name);
   const [reference, setReference] = useState(initial.reference);
   const [notes, setNotes] = useState(initial.notes);
-  const nextId = useRef(Math.max(0, ...initial.items.map(item => item.id)) + 1);
   useEffect(() => {
-    onDirty?.(JSON.stringify({ ...initial, name, reference, notes, items, discount: Number(discount) }) !== JSON.stringify(initial) || !!description || !!price || quantity !== '1');
-  }, [name, reference, notes, items, discount, initial, onDirty, description, price, quantity]);
+    onDirty?.(
+      JSON.stringify({
+        ...initial,
+        name: name.trim(),
+        reference,
+        notes,
+        items,
+        discount: Number(discount),
+      }) !== JSON.stringify({ ...initial, name: initial.name.trim() }) ||
+        editing !== null ||
+        !!description ||
+        !!price ||
+        quantity !== "1",
+    );
+  }, [
+    name,
+    reference,
+    notes,
+    items,
+    discount,
+    initial,
+    onDirty,
+    description,
+    editing,
+    price,
+    quantity,
+  ]);
   const descriptionRef = useRef<HTMLInputElement>(null);
   function addItem(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (items.length >= 100 && editing === null) {
-      setMessage('A quote can contain at most 100 line items.');
+      setMessage("A quote can contain at most 100 line items.");
       return;
     }
     const cents = parseCents(price);
@@ -41,27 +73,56 @@ export function QuoteForm({ initial = blank, onSave, onDirty }: { initial?: Draf
       cents === null
     ) {
       setMessage(
-        'Enter a description, quantity from 1 to 999, and price from 0 to 999999.99 with at most two decimals.'
+        "Enter a description, quantity from 1 to 999, and price from 0 to 999999.99 with at most two decimals.",
       );
       return;
     }
-    const item = { id: editing === null ? nextId.current++ : editing, description: description.trim(), quantity: Number(quantity), cents };
-    setItems(editing === null ? [...items, item] : items.map(row => row.id === editing ? item : row));
+    const item = {
+      id: editing === null ? unusedItemId(items) : editing,
+      description: description.trim(),
+      quantity: Number(quantity),
+      cents,
+    };
+    setItems(
+      editing === null
+        ? [...items, item]
+        : items.map((row) => (row.id === editing ? item : row)),
+    );
     setEditing(null);
     descriptionRef.current?.focus();
-    setDescription('');
-    setQuantity('1');
-    setPrice('');
-    setMessage('Item added.');
+    setDescription("");
+    setQuantity("1");
+    setPrice("");
+    setMessage("Item added.");
   }
   return (
     <div className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm sm:p-8 print:border-0 print:shadow-none">
       <div className="mb-6 grid gap-4 sm:grid-cols-2 print:hidden">
-        <div><label htmlFor="quote-name">Quote name</label><Input id="quote-name" value={name} maxLength={80} onChange={e => setName(e.target.value)} /></div>
-        <div><label htmlFor="reference">Reference</label><Input id="reference" value={reference} maxLength={80} onChange={e => setReference(e.target.value)} /></div>
+        <div>
+          <label htmlFor="quote-name">Quote name</label>
+          <Input
+            id="quote-name"
+            value={name}
+            maxLength={80}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="reference">Reference</label>
+          <Input
+            id="reference"
+            value={reference}
+            maxLength={80}
+            onChange={(e) => setReference(e.target.value)}
+          />
+        </div>
       </div>
-      <h2 className="hidden text-2xl print:block">{name}</h2><p className="hidden print:block">{reference}</p>
-      <form className="grid gap-4 sm:grid-cols-3 print:hidden" onSubmit={addItem}>
+      <h2 className="hidden break-words text-2xl print:block">{name}</h2>
+      <p className="hidden break-words print:block">{reference}</p>
+      <form
+        className="grid gap-4 sm:grid-cols-3 print:hidden"
+        onSubmit={addItem}
+      >
         <div>
           <label htmlFor="description">Description</label>
           <Input
@@ -93,8 +154,23 @@ export function QuoteForm({ initial = blank, onSave, onDirty }: { initial?: Draf
             required
           />
         </div>
-        <Button type="submit">{editing === null ? 'Add item' : 'Update item'}</Button>
-        {editing !== null ? <Button type="button" variant="outline" onClick={() => { setEditing(null); setDescription(''); setQuantity('1'); setPrice(''); }}>Cancel edit</Button> : null}
+        <Button type="submit">
+          {editing === null ? "Add item" : "Update item"}
+        </Button>
+        {editing !== null ? (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              setEditing(null);
+              setDescription("");
+              setQuantity("1");
+              setPrice("");
+            }}
+          >
+            Cancel edit
+          </Button>
+        ) : null}
       </form>
       <p role="status" className="print:hidden">
         {message}
@@ -106,22 +182,38 @@ export function QuoteForm({ initial = blank, onSave, onDirty }: { initial?: Draf
             key={item.id}
           >
             <span className="min-w-0 break-all">
-              {item.description} · {item.quantity} × {dollars(item.cents)} ={' '}
+              {item.description} · {item.quantity} × {dollars(item.cents)} ={" "}
               {dollars(item.quantity * item.cents)}
-            </span>{' '}
-            <Button type="button" variant="outline" className="print:hidden" aria-label={'Edit ' + item.description} onClick={() => {
-              if ((description || price) && !window.confirm('Discard the unfinished line item?')) return;
-              setEditing(item.id); setDescription(item.description); setQuantity(String(item.quantity)); setPrice((item.cents / 100).toFixed(2)); descriptionRef.current?.focus();
-            }}>Edit</Button>
+            </span>{" "}
+            <Button
+              type="button"
+              variant="outline"
+              className="print:hidden"
+              aria-label={"Edit " + item.description}
+              onClick={() => {
+                if (
+                  (description || price) &&
+                  !window.confirm("Discard the unfinished line item?")
+                )
+                  return;
+                setEditing(item.id);
+                setDescription(item.description);
+                setQuantity(String(item.quantity));
+                setPrice((item.cents / 100).toFixed(2));
+                descriptionRef.current?.focus();
+              }}
+            >
+              Edit
+            </Button>
             <Button
               type="button"
               disabled={editing !== null}
               variant="ghost"
               className="print:hidden"
-              aria-label={'Remove ' + item.description}
+              aria-label={"Remove " + item.description}
               onClick={() => {
                 setItems(items.filter((row) => row.id !== item.id));
-                setMessage('Item removed.');
+                setMessage("Item removed.");
                 descriptionRef.current?.focus();
               }}
             >
@@ -143,13 +235,30 @@ export function QuoteForm({ initial = blank, onSave, onDirty }: { initial?: Draf
         />
         <p id="discount-help">
           {validDiscount
-            ? 'Whole percentages from 0 to 100.'
-            : 'Enter a whole percentage from 0 to 100. Totals exclude the invalid discount.'}
+            ? "Whole percentages from 0 to 100."
+            : "Enter a whole percentage from 0 to 100. Totals exclude the invalid discount."}
         </p>
       </div>
-      <div className="mt-5 print:hidden"><label htmlFor="notes">Quote notes</label><textarea id="notes" className="w-full rounded border border-input p-3" value={notes} maxLength={1000} rows={3} onChange={e => setNotes(e.target.value)} /></div>
-      {notes ? <p className="hidden whitespace-pre-wrap break-words print:block">{notes}</p> : null}
-      <p className="mt-4 text-sm print:hidden">Finish or cancel the current line item before saving or printing. Save draft also saves changes to its name.</p>
+      <div className="mt-5 print:hidden">
+        <label htmlFor="notes">Quote notes</label>
+        <textarea
+          id="notes"
+          className="w-full rounded border border-input p-3"
+          value={notes}
+          maxLength={1000}
+          rows={3}
+          onChange={(e) => setNotes(e.target.value)}
+        />
+      </div>
+      {notes ? (
+        <p className="hidden whitespace-pre-wrap break-words print:block">
+          {notes}
+        </p>
+      ) : null}
+      <p className="mt-4 text-sm print:hidden">
+        Finish or cancel the current line item before saving or printing. Save
+        draft also saves changes to its name.
+      </p>
       <dl className="mt-6 grid grid-cols-2 gap-3 border-t border-stone-200 pt-4 text-lg">
         <dt>Subtotal</dt>
         <dd>{dollars(totals.subtotal)}</dd>
@@ -158,11 +267,44 @@ export function QuoteForm({ initial = blank, onSave, onDirty }: { initial?: Draf
         <dt>Total</dt>
         <dd>{dollars(totals.total)}</dd>
       </dl>
-      {onSave ? <Button type="button" className="mt-4 mr-3 print:hidden" disabled={!name.trim() || !validDiscount || !!description || !!price || quantity !== '1'} onClick={() => onSave({ ...initial, name: name.trim(), reference, notes, items, discount: Number(discount) })}>Save draft</Button> : null}
+      {onSave ? (
+        <Button
+          type="button"
+          className="mt-4 mr-3 print:hidden"
+          disabled={
+            editing !== null ||
+            !name.trim() ||
+            !validDiscount ||
+            !!description ||
+            !!price ||
+            quantity !== "1"
+          }
+          onClick={() =>
+            onSave({
+              ...initial,
+              name: name.trim(),
+              reference,
+              notes,
+              items,
+              discount: Number(discount),
+            })
+          }
+        >
+          Save draft
+        </Button>
+      ) : null}
       <Button
         type="button"
         className="mt-4 print:hidden"
-        disabled={!items.length || !validDiscount || !name.trim() || !!description || !!price || quantity !== '1'}
+        disabled={
+          editing !== null ||
+          !items.length ||
+          !validDiscount ||
+          !name.trim() ||
+          !!description ||
+          !!price ||
+          quantity !== "1"
+        }
         onClick={() => window.print()}
       >
         Print quote
