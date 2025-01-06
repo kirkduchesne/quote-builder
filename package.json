@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "tsc lib/money.ts lib/drafts.ts --outDir /tmp/quote-builder-tests --module commonjs --target es2020 --skipLibCheck && node tests/money.cjs && node tests/drafts.cjs"
+    "test": "tsc lib/*.ts --outDir .test-build --module commonjs --target es2020 --esModuleInterop --skipLibCheck && node tests/run.cjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "1.0.2",

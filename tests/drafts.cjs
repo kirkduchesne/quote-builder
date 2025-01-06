@@ -3,7 +3,7 @@ const {
   newDraft,
   validDraft,
   parseDrafts,
-} = require("/tmp/quote-builder-tests/drafts.js");
+} = require("../.test-build/drafts.js");
 const draft = newDraft("one");
 assert(validDraft(draft));
 assert.equal(
@@ -32,7 +32,7 @@ assert(validDraft({ ...draft, items: [item] }));
 assert(!validDraft({ ...draft, items: [item, item] }));
 console.log("Draft validation tests passed");
 
-const { unusedItemId } = require('/tmp/quote-builder-tests/drafts.js');
+const { unusedItemId } = require('../.test-build/drafts.js');
 assert.equal(unusedItemId([]), 1);
 assert.equal(unusedItemId([{...item,id:1},{...item,id:3}]), 2);
 const highId = {...item, id: Number.MAX_SAFE_INTEGER - 1};
