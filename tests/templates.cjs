@@ -5,3 +5,5 @@ assert(t.validTemplate(sample));
 assert(!t.validTemplate({...sample,quantity:0}));
 assert.deepEqual(t.parseTemplates(JSON.stringify({version:1,templates:[sample]})),[sample]);
 assert.throws(()=>t.parseTemplates(JSON.stringify({version:1,templates:[sample,sample]})));
+for(const raw of ['', 'null','{}','{',JSON.stringify({version:2,templates:[]}),JSON.stringify({version:1,templates:Array(31).fill(sample)})]) assert.throws(()=>t.parseTemplates(raw));
+for(const patch of [{name:' '},{name:'x'.repeat(81)},{description:''},{cents:0.5},{quantity:1000}]) assert(!t.validTemplate({...sample,...patch}));
