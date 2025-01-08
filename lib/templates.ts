@@ -10,3 +10,10 @@ export function parseTemplates(raw: string): Template[] {
   if (!value || value.version !== 1 || !Array.isArray(value.templates) || value.templates.length > 30 || !value.templates.every(validTemplate) || new Set(value.templates.map((t: Template) => t.id)).size !== value.templates.length) throw new Error('Invalid saved service templates');
   return value.templates;
 }
+export function createTemplate(templates: Template[], fields: Omit<Template, 'id'>): Template[] {
+  if (templates.length >= 30) throw new Error('Keep at most 30 service templates.');
+  let id = 1; while (templates.some(t => t.id === id)) id++;
+  const template = { ...fields, id };
+  if (!validTemplate(template)) throw new Error('Check the template name, description, quantity, and price.');
+  return [...templates, template];
+}
