@@ -17,3 +17,7 @@ export function createTemplate(templates: Template[], fields: Omit<Template, 'id
   if (!validTemplate(template)) throw new Error('Check the template name, description, quantity, and price.');
   return [...templates, template];
 }
+export function updateTemplate(templates: Template[], template: Template): Template[] {
+  if (!validTemplate(template) || !templates.some(t => t.id === template.id)) throw new Error('Template no longer exists or has invalid values.');
+  return templates.map(t => t.id === template.id ? template : t);
+}

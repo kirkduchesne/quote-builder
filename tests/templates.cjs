@@ -9,3 +9,5 @@ for(const raw of ['', 'null','{}','{',JSON.stringify({version:2,templates:[]}),J
 for(const patch of [{name:' '},{name:'x'.repeat(81)},{description:''},{cents:0.5},{quantity:1000}]) assert(!t.validTemplate({...sample,...patch}));
 assert.equal(t.createTemplate([sample],sample)[1].id,2);
 assert.throws(()=>t.createTemplate(Array(30).fill(sample),sample));
+assert.equal(t.updateTemplate([sample],{...sample,name:'Updated'})[0].name,'Updated');
+assert.throws(()=>t.updateTemplate([],{...sample}));
