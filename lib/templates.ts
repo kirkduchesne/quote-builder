@@ -21,3 +21,4 @@ export function updateTemplate(templates: Template[], template: Template): Templ
   if (!validTemplate(template) || !templates.some(t => t.id === template.id)) throw new Error('Template no longer exists or has invalid values.');
   return templates.map(t => t.id === template.id ? template : t);
 }
+export function deleteTemplate(templates: Template[], id: number) { return templates.filter(t => t.id !== id); }

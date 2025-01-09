@@ -11,3 +11,5 @@ assert.equal(t.createTemplate([sample],sample)[1].id,2);
 assert.throws(()=>t.createTemplate(Array(30).fill(sample),sample));
 assert.equal(t.updateTemplate([sample],{...sample,name:'Updated'})[0].name,'Updated');
 assert.throws(()=>t.updateTemplate([],{...sample}));
+assert.deepEqual(t.deleteTemplate([sample],1),[]);
+assert.deepEqual(t.deleteTemplate([sample],2),[sample]);
