@@ -23,3 +23,7 @@ export function updateTemplate(templates: Template[], template: Template): Templ
 }
 export function deleteTemplate(templates: Template[], id: number) { return templates.filter(t => t.id !== id); }
 export function searchTemplates(templates: Template[], query: string) { const q=query.trim().toLocaleLowerCase('en-US'); return templates.filter(t => (t.name+' '+t.description).toLocaleLowerCase('en-US').includes(q)); }
+export function templateItem(template: Template, items: Item[]): Item {
+  if (!validTemplate(template) || items.length >= 100) throw new Error('Check the template and keep at most 100 line items.');
+  return { id: unusedItemId(items), description: template.description, quantity: template.quantity, cents: template.cents };
+}

@@ -15,3 +15,5 @@ assert.deepEqual(t.deleteTemplate([sample],1),[]);
 assert.deepEqual(t.deleteTemplate([sample],2),[sample]);
 assert.equal(t.searchTemplates([sample],' WORK ').length,1);
 assert.equal(t.searchTemplates([sample],'missing').length,0);
+assert.equal(t.templateItem(sample,[]).cents,10000);
+assert.throws(()=>t.templateItem(sample,Array(100).fill({id:1})));
