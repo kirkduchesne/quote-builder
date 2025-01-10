@@ -13,3 +13,5 @@ assert.equal(t.updateTemplate([sample],{...sample,name:'Updated'})[0].name,'Upda
 assert.throws(()=>t.updateTemplate([],{...sample}));
 assert.deepEqual(t.deleteTemplate([sample],1),[]);
 assert.deepEqual(t.deleteTemplate([sample],2),[sample]);
+assert.equal(t.searchTemplates([sample],' WORK ').length,1);
+assert.equal(t.searchTemplates([sample],'missing').length,0);

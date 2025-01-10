@@ -22,3 +22,4 @@ export function updateTemplate(templates: Template[], template: Template): Templ
   return templates.map(t => t.id === template.id ? template : t);
 }
 export function deleteTemplate(templates: Template[], id: number) { return templates.filter(t => t.id !== id); }
+export function searchTemplates(templates: Template[], query: string) { const q=query.trim().toLocaleLowerCase('en-US'); return templates.filter(t => (t.name+' '+t.description).toLocaleLowerCase('en-US').includes(q)); }
