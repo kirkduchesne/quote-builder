@@ -5,3 +5,6 @@ assert(!storage.loadTemplates({getItem:()=>''}).readable);
 let raw=null;const store={getItem:()=>raw,setItem:(k,v)=>{raw=v;}};
 storage.saveTemplates(store,[],null);assert.equal(raw,'{"version":1,"templates":[]}');
 assert.throws(()=>storage.saveTemplates(store,[],null));
+assert(!storage.loadTemplates({getItem:()=>{throw Error('denied')}}).readable);
+assert.throws(()=>storage.saveTemplates({getItem:()=>null,setItem:()=>{throw Error('quota')}},[],null));
+assert.throws(()=>storage.saveTemplates(store,[{}],raw));
