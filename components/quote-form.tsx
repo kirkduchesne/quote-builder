@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { calculateTotal, dollars, parseCents } from "@/lib/money";
 
 import { type Draft, type Item, newDraft, unusedItemId } from "@/lib/drafts";
+import { TemplateManager } from "@/components/template-manager";
 const blank = newDraft("unsaved");
 
 export function QuoteForm({
