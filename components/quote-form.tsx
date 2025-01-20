@@ -7,6 +7,7 @@ import { calculateTotal, dollars, parseCents } from "@/lib/money";
 
 import { type Draft, type Item, newDraft, unusedItemId } from "@/lib/drafts";
 import { TemplateManager } from "@/components/template-manager";
+import { templateItem } from "@/lib/templates";
 const blank = newDraft("unsaved");
 
 export function QuoteForm({
@@ -120,6 +121,7 @@ export function QuoteForm({
       </div>
       <h2 className="hidden break-words text-2xl print:block">{name}</h2>
       <p className="hidden break-words print:block">{reference}</p>
+      <TemplateManager onInsert={template=>{if((description || price || quantity !== '1' || editing !== null) && !window.confirm('Discard the unfinished line item before using this template?'))return;try{setItems([...items,templateItem(template,items)]);setEditing(null);setDescription('');setPrice('');setQuantity('1');setMessage('Service template added.');}catch(error){setMessage((error as Error).message);}}} />
       <form
         className="grid gap-4 sm:grid-cols-3 print:hidden"
         onSubmit={addItem}
