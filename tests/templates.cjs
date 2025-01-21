@@ -17,3 +17,7 @@ assert.equal(t.searchTemplates([sample],' WORK ').length,1);
 assert.equal(t.searchTemplates([sample],'missing').length,0);
 assert.equal(t.templateItem(sample,[]).cents,10000);
 assert.throws(()=>t.templateItem(sample,Array(100).fill({id:1})));
+assert(t.validTemplate({...sample,cents:99999999,quantity:999}));
+assert(!t.validTemplate({...sample,cents:100000000}));
+assert(!t.validTemplate({...sample,quantity:1.5}));
+assert.equal(t.templateItem({...sample,cents:0},[]).cents,0);
