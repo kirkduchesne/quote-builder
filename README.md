@@ -43,3 +43,8 @@ Save up to 20 drafts with names, references, notes, line items, and discounts. C
 Storage is local to this browser. Invalid stored data is preserved; session changes cannot overwrite it. Storage failures are reported as session-only saves, and leaving the page prompts about changes not written to storage. Changes from another tab block writes until reload, avoiding silent overwrites. No account, network synchronization, or backup is provided. Clearing browser site data removes drafts. Do not store sensitive customer details in this local demonstration.
 
 The validated version-one storage format is tested against malformed data, invalid values, duplicate identifiers, and size limits. Money regression cases include full-size quotes and half-cent discount rounding. Print includes the quote name, reference, notes, and calculated totals while hiding editing controls.
+
+
+## 2025 service templates
+
+Create up to 30 named service templates with a description, quantity, and unit price. Search, edit, delete, or insert them into a quote. Templates are stored separately from drafts in this browser. Invalid storage is preserved and conflicting writes remain session-only. Unfinished template edits trigger a leave-page prompt; finish or cancel them before leaving. These January 2025 milestones are reconstructions created in September 2026 with intentionally assigned dates.
