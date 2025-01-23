@@ -6,3 +6,5 @@ assert.equal(op.duplicateLine([line],1)[1].id,2);
 assert.throws(()=>op.duplicateLine(Array(100).fill(line),1));
 assert.equal(op.moveLineUp([line,{...line,id:2}],2)[0].id,2);
 assert.deepEqual(op.moveLineUp([line],1),[line]);
+assert.equal(op.moveLineDown([line,{...line,id:2}],1)[0].id,2);
+assert.deepEqual(op.moveLineDown([line],1),[line]);

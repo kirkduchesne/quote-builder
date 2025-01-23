@@ -9,3 +9,8 @@ export function moveLineUp(items: Item[], id: number): Item[] {
   if (index > 0) [next[index-1], next[index]] = [next[index], next[index-1]];
   return next;
 }
+export function moveLineDown(items: Item[], id: number): Item[] {
+  const index = items.findIndex(item => item.id === id); const next = [...items];
+  if (index >= 0 && index < next.length-1) [next[index], next[index+1]] = [next[index+1], next[index]];
+  return next;
+}
