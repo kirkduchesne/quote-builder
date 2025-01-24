@@ -187,7 +187,7 @@ export function QuoteForm({
             key={item.id}
           >
             <span className="min-w-0 break-all">
-              {item.description} · {item.quantity} × {dollars(item.cents)} ={" "}
+              <span className="mr-2 text-sm">{index + 1}.</span>{item.description} · {item.quantity} × {dollars(item.cents)} ={" "}
               {dollars(item.quantity * item.cents)}
             </span>{" "}
             <Button type="button" variant="ghost" className="print:hidden" disabled={editing !== null || index === 0} onClick={()=>{setItems(moveLineUp(items,item.id));setMessage('Line moved up.');}}>Move up</Button>
