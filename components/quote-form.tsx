@@ -181,7 +181,7 @@ export function QuoteForm({
         {message}
       </p>
       <ul className="my-6 space-y-3">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <li
             className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 py-3 break-words"
             key={item.id}
@@ -190,6 +190,8 @@ export function QuoteForm({
               {item.description} · {item.quantity} × {dollars(item.cents)} ={" "}
               {dollars(item.quantity * item.cents)}
             </span>{" "}
+            <Button type="button" variant="ghost" className="print:hidden" disabled={editing !== null || index === 0} onClick={()=>{setItems(moveLineUp(items,item.id));setMessage('Line moved up.');}}>Move up</Button>
+            <Button type="button" variant="ghost" className="print:hidden" disabled={editing !== null || index === items.length-1} onClick={()=>{setItems(moveLineDown(items,item.id));setMessage('Line moved down.');}}>Move down</Button>
             <Button type="button" variant="outline" className="print:hidden" disabled={editing !== null || items.length >= 100} onClick={()=>{setItems(duplicateLine(items,item.id));setMessage('Line duplicated.');}}>Duplicate line</Button>
             <Button
               type="button"
