@@ -14,3 +14,8 @@ export function moveLineDown(items: Item[], id: number): Item[] {
   if (index >= 0 && index < next.length-1) [next[index], next[index+1]] = [next[index+1], next[index]];
   return next;
 }
+export function duplicateDraft(drafts: Draft[], source: Draft): Draft {
+  if (!validDraft(source) || drafts.length >= 20) throw new Error('Check the quote and keep at most 20 saved drafts.');
+  let suffix=1; while(drafts.some(d=>d.id==='copy-'+suffix))suffix++;
+  return {...source,id:'copy-'+suffix,name:source.name.slice(0,73)+' (copy)',items:source.items.map(item=>({...item}))};
+}

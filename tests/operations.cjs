@@ -8,3 +8,5 @@ assert.equal(op.moveLineUp([line,{...line,id:2}],2)[0].id,2);
 assert.deepEqual(op.moveLineUp([line],1),[line]);
 assert.equal(op.moveLineDown([line,{...line,id:2}],1)[0].id,2);
 assert.deepEqual(op.moveLineDown([line],1),[line]);
+const source=newDraft('one');assert.equal(op.duplicateDraft([source],source).id,'copy-1');
+assert.throws(()=>op.duplicateDraft(Array(20).fill(source),source));
