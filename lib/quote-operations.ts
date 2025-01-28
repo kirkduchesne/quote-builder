@@ -20,3 +20,4 @@ export function duplicateDraft(drafts: Draft[], source: Draft): Draft {
   return {...source,id:'copy-'+suffix,name:source.name.slice(0,73)+' (copy)',items:source.items.map(item=>({...item}))};
 }
 export function searchDrafts(drafts: Draft[], query: string) { const q=query.trim().toLowerCase(); return drafts.filter(d=>(d.name+' '+d.reference).toLowerCase().includes(q)); }
+export function orderDrafts(drafts: Draft[], order: string) { return order==='name' ? [...drafts].sort((a,b)=>a.name.localeCompare(b.name,'en')||a.id.localeCompare(b.id,'en')) : [...drafts]; }

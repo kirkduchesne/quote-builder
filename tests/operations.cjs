@@ -12,3 +12,4 @@ const source=newDraft('one');assert.equal(op.duplicateDraft([source],source).id,
 assert.throws(()=>op.duplicateDraft(Array(20).fill(source),source));
 assert.equal(op.searchDrafts([{...source,reference:'REF-1'}],'ref-1').length,1);
 assert.equal(op.searchDrafts([source],'missing').length,0);
+assert.equal(op.orderDrafts([{...source,name:'Z',id:'z'},{...source,name:'A',id:'a'}],'name')[0].id,'a');
