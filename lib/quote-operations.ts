@@ -19,3 +19,4 @@ export function duplicateDraft(drafts: Draft[], source: Draft): Draft {
   let suffix=1; while(drafts.some(d=>d.id==='copy-'+suffix))suffix++;
   return {...source,id:'copy-'+suffix,name:source.name.slice(0,73)+' (copy)',items:source.items.map(item=>({...item}))};
 }
+export function searchDrafts(drafts: Draft[], query: string) { const q=query.trim().toLowerCase(); return drafts.filter(d=>(d.name+' '+d.reference).toLowerCase().includes(q)); }

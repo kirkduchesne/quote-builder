@@ -10,3 +10,5 @@ assert.equal(op.moveLineDown([line,{...line,id:2}],1)[0].id,2);
 assert.deepEqual(op.moveLineDown([line],1),[line]);
 const source=newDraft('one');assert.equal(op.duplicateDraft([source],source).id,'copy-1');
 assert.throws(()=>op.duplicateDraft(Array(20).fill(source),source));
+assert.equal(op.searchDrafts([{...source,reference:'REF-1'}],'ref-1').length,1);
+assert.equal(op.searchDrafts([source],'missing').length,0);
