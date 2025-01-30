@@ -3,8 +3,12 @@ import { useEffect, useState } from "react";
 import { QuoteForm } from "@/components/quote-form";
 import { Button } from "@/components/ui/button";
 import { newDraft, parseDrafts, validDraft, type Draft } from "@/lib/drafts";
+import { duplicateDraft, searchDrafts, orderDrafts } from "@/lib/quote-operations";
+import { Input } from "@/components/ui/input";
 const storageKey = "quote-builder-drafts-v1";
 export function DraftWorkspace() {
+  const [search,setSearch]=useState('');
+  const [order,setOrder]=useState('added');
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [active, setActive] = useState<Draft | null>(null);
   const [dirty, setDirty] = useState(false);
@@ -122,6 +126,7 @@ export function DraftWorkspace() {
   if (!active) return <p role="status">Loading saved drafts…</p>;
   return (
     <>
+      <div className="mb-4 grid gap-3 sm:grid-cols-2 print:hidden"><div><label htmlFor="draft-search">Find saved drafts</label><Input id="draft-search" value={search} onChange={e=>setSearch(e.target.value)} /></div><div><label htmlFor="draft-order">Draft order</label><select id="draft-order" className="h-10 rounded border p-2" value={order} onChange={e=>setOrder(e.target.value)}><option value="added">Saved order</option><option value="name">Name A–Z</option></select></div></div>
       <div className="mb-4 flex flex-wrap items-end gap-3 print:hidden">
         <div className="min-w-0 max-w-full">
           <label htmlFor="draft-picker">Saved drafts</label>
@@ -140,7 +145,7 @@ export function DraftWorkspace() {
             <option value="" disabled>
               Unsaved quote
             </option>
-            {drafts.map((d) => (
+            {orderDrafts(searchDrafts(drafts,search),order).map((d) => (
               <option key={d.id} value={d.id}>
                 {d.name}
               </option>
