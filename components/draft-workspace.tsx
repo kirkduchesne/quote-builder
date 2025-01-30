@@ -163,6 +163,7 @@ export function DraftWorkspace() {
         >
           New quote
         </Button>
+        <Button type="button" variant="outline" disabled={!drafts.some(d=>d.id===active.id) || drafts.length>=20} onClick={()=>{if(!canLeave())return;try{save(duplicateDraft(drafts,active));setSearch('');}catch(error){setMessage((error as Error).message);}}}>Duplicate quote</Button>
         <Button
           type="button"
           variant="outline"
