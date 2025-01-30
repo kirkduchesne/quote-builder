@@ -171,7 +171,6 @@ export function DraftWorkspace() {
         {message}
       </p>
       <QuoteForm
-        key={active.id}
         initial={active}
         onSave={save}
         onDirty={setDirty}

@@ -33,6 +33,9 @@ export function QuoteForm({
   const [reference, setReference] = useState(initial.reference);
   const [notes, setNotes] = useState(initial.notes);
   useEffect(() => {
+    setItems(initial.items); setName(initial.name); setReference(initial.reference); setNotes(initial.notes); setDiscount(String(initial.discount)); setEditing(null); setDescription(''); setQuantity('1'); setPrice(''); setMessage('');
+  }, [initial.id]);
+  useEffect(() => {
     onDirty?.(
       JSON.stringify({
         ...initial,
