@@ -145,7 +145,7 @@ export function DraftWorkspace() {
             <option value="" disabled>
               Unsaved quote
             </option>
-            {orderDrafts(searchDrafts(drafts,search),order).map((d) => (
+            {orderDrafts(drafts.filter(d=>d.id===active.id || searchDrafts([d],search).length>0),order).map((d) => (
               <option key={d.id} value={d.id}>
                 {d.name}
               </option>
@@ -173,6 +173,7 @@ export function DraftWorkspace() {
           Delete draft
         </Button>
       </div>
+      <p className="print:hidden">{searchDrafts(drafts,search).length} saved drafts match. The current quote remains available.</p>
       <p role="status" className="mb-4 print:hidden">
         {message}
       </p>
