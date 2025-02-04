@@ -10,3 +10,5 @@ assert.throws(()=>backup.parseBackup(JSON.stringify({kind:'quote-builder',versio
 assert.throws(()=>backup.parseBackup(JSON.stringify({kind:'quote-builder',version:1,drafts:[{...draft,items:[{id:1,description:'Bad',quantity:1,cents:-1}]}]})));
 assert.equal(backup.mergeBackup([draft],[draft])[1].id,'import-1');
 assert.throws(()=>backup.mergeBackup(Array(20).fill(draft),[draft]));
+assert.equal(backup.mergeBackup([draft],[draft])[1].name,'Untitled quote (import 1)');
+assert.equal(backup.mergeBackup([draft],[draft,draft])[2].name,'Untitled quote (import 2)');

@@ -9,6 +9,6 @@ export function parseBackup(raw: string): Draft[] {
 export function mergeBackup(existing: Draft[], incoming: Draft[]): Draft[] {
   if (existing.length + incoming.length > 20 || !existing.every(validDraft) || !incoming.every(validDraft)) throw new Error('The combined collection must contain at most 20 valid drafts.');
   const result = [...existing];
-  for (const draft of incoming) { let id=draft.id; let n=1; while(result.some(d=>d.id===id))id='import-'+n++; result.push({...draft,id,items:draft.items.map(item=>({...item}))}); }
+  for (const draft of incoming) { let id=draft.id; let n=1; while(result.some(d=>d.id===id))id='import-'+n++; let name=draft.name; let copy=1; while(result.some(d=>d.name===name)){const suffix=' (import '+copy+++')';name=draft.name.slice(0,80-suffix.length)+suffix;} result.push({...draft,id,name,items:draft.items.map(item=>({...item}))}); }
   return result;
 }
