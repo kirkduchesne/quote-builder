@@ -8,3 +8,5 @@ for(const raw of ['x'.repeat(1000001),'null','{}',JSON.stringify({kind:'quote-bu
 assert.throws(()=>backup.parseBackup('😀'.repeat(250001)));
 assert.throws(()=>backup.parseBackup(JSON.stringify({kind:'quote-builder',version:1,drafts:[draft,draft]})));
 assert.throws(()=>backup.parseBackup(JSON.stringify({kind:'quote-builder',version:1,drafts:[{...draft,items:[{id:1,description:'Bad',quantity:1,cents:-1}]}]})));
+assert.equal(backup.mergeBackup([draft],[draft])[1].id,'import-1');
+assert.throws(()=>backup.mergeBackup(Array(20).fill(draft),[draft]));
