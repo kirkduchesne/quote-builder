@@ -12,3 +12,5 @@ assert.equal(backup.mergeBackup([draft],[draft])[1].id,'import-1');
 assert.throws(()=>backup.mergeBackup(Array(20).fill(draft),[draft]));
 assert.equal(backup.mergeBackup([draft],[draft])[1].name,'Untitled quote (import 1)');
 assert.equal(backup.mergeBackup([draft],[draft,draft])[2].name,'Untitled quote (import 2)');
+assert.deepEqual(backup.parseBackup(backup.serializeBackup([draft])),[draft]);
+assert.throws(()=>backup.serializeBackup(Array(21).fill(draft)));

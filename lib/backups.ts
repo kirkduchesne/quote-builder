@@ -12,3 +12,6 @@ export function mergeBackup(existing: Draft[], incoming: Draft[]): Draft[] {
   for (const draft of incoming) { let id=draft.id; let n=1; while(result.some(d=>d.id===id))id='import-'+n++; let name=draft.name; let copy=1; while(result.some(d=>d.name===name)){const suffix=' (import '+copy+++')';name=draft.name.slice(0,80-suffix.length)+suffix;} result.push({...draft,id,name,items:draft.items.map(item=>({...item}))}); }
   return result;
 }
+export function serializeBackup(drafts: Draft[]) {
+  const raw=JSON.stringify({kind:'quote-builder',version:1,drafts},null,2); parseBackup(raw); return raw;
+}
