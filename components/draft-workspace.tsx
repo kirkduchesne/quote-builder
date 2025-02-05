@@ -52,8 +52,21 @@ export function DraftWorkspace() {
     window.addEventListener("storage", changed);
     return () => window.removeEventListener("storage", changed);
   }, []);
+  const draftsRef=useRef(drafts); draftsRef.current=drafts;
+  const dirtyRef=useRef(dirty); dirtyRef.current=dirty;
+  async function importFile(file:File) {
+    try {
+      if(file.size>1000000)throw Error('Choose a quote backup no larger than 1 MB.');
+      const incoming=parseBackup(await file.text());
+      const merged=mergeBackup(draftsRef.current,incoming);
+      if(!window.confirm('Import saved drafts? Existing drafts will be kept. Any unfinished quote edits will be discarded.'))return;
+      setDrafts(merged);setActive(merged[0]||newDraft(String(Date.now())));setDirty(false);
+      if(blocked){setPendingStorage(true);setMessage('Imported drafts are session-only. Existing unreadable storage was preserved.');return;}
+      try{localStorage.setItem(storageKey,JSON.stringify({version:1,drafts:merged}));setPendingStorage(false);setMessage('Quote backup imported.');}catch{setPendingStorage(true);setMessage('Imported drafts are session-only because storage is unavailable or full.');}
+    } catch(error){setMessage((error as Error).message || 'The backup could not be read. Existing drafts are unchanged.');}
+  }
   function canLeave() {
-    return !dirty || window.confirm("Discard unsaved changes to this quote?");
+    return !dirtyRef.current || window.confirm("Discard unsaved changes to this quote?");
   }
   function save(draft: Draft) {
     if (!validDraft(draft)) {
@@ -174,7 +187,7 @@ export function DraftWorkspace() {
           Delete draft
         </Button>
       </div>
-      <div className="my-4 print:hidden"><Button type="button" variant="outline" onClick={()=>{try{downloadBackup(drafts);setMessage('Saved drafts exported. Unfinished quote or template edits are not included.');}catch{setMessage('The backup download could not start. Keep this page open and try again.');}}}>Export saved drafts</Button></div>
+      <div className="my-4 print:hidden"><Button type="button" variant="outline" onClick={()=>{try{downloadBackup(drafts);setMessage('Saved drafts exported. Unfinished quote or template edits are not included.');}catch{setMessage('The backup download could not start. Keep this page open and try again.');}}}>Export saved drafts</Button><label htmlFor="quote-backup" className="mt-3">Import quote backup</label><input id="quote-backup" type="file" accept=".json,application/json" onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)void importFile(file);}} /></div>
       <p className="print:hidden">{searchDrafts(drafts,search).length} saved drafts match. The current quote remains available.</p>
       <p role="status" className="mb-4 print:hidden">
         {message}
