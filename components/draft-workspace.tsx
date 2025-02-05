@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { QuoteForm } from "@/components/quote-form";
 import { Button } from "@/components/ui/button";
 import { newDraft, parseDrafts, validDraft, type Draft } from "@/lib/drafts";
 import { duplicateDraft, searchDrafts, orderDrafts } from "@/lib/quote-operations";
 import { Input } from "@/components/ui/input";
+import { downloadBackup, parseBackup, mergeBackup } from "@/lib/backups";
 const storageKey = "quote-builder-drafts-v1";
 export function DraftWorkspace() {
   const [search,setSearch]=useState('');
@@ -173,6 +174,7 @@ export function DraftWorkspace() {
           Delete draft
         </Button>
       </div>
+      <div className="my-4 print:hidden"><Button type="button" variant="outline" onClick={()=>{try{downloadBackup(drafts);setMessage('Saved drafts exported. Unfinished quote or template edits are not included.');}catch{setMessage('The backup download could not start. Keep this page open and try again.');}}}>Export saved drafts</Button></div>
       <p className="print:hidden">{searchDrafts(drafts,search).length} saved drafts match. The current quote remains available.</p>
       <p role="status" className="mb-4 print:hidden">
         {message}

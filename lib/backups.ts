@@ -15,3 +15,8 @@ export function mergeBackup(existing: Draft[], incoming: Draft[]): Draft[] {
 export function serializeBackup(drafts: Draft[]) {
   const raw=JSON.stringify({kind:'quote-builder',version:1,drafts},null,2); parseBackup(raw); return raw;
 }
+export function downloadBackup(drafts: Draft[]) {
+  const url=URL.createObjectURL(new Blob([serializeBackup(drafts)],{type:'application/json'}));
+  try { const link=document.createElement('a');link.href=url;link.download='quote-builder-drafts.json';document.body.appendChild(link);link.click();link.remove(); }
+  finally { setTimeout(()=>URL.revokeObjectURL(url),1000); }
+}
