@@ -59,8 +59,8 @@ export function DraftWorkspace() {
       if(file.size>1000000)throw Error('Choose a quote backup no larger than 1 MB.');
       const incoming=parseBackup(await file.text());
       const merged=mergeBackup(draftsRef.current,incoming);
-      if(!window.confirm('Import saved drafts? Existing drafts will be kept. Any unfinished quote edits will be discarded.'))return;
-      setDrafts(merged);setActive(merged[0]||newDraft(String(Date.now())));setDirty(false);
+      if(!window.confirm(dirtyRef.current ? 'Import drafts and discard unsaved quote changes? Saved drafts are kept. Cancel to save your edits first.' : 'Import saved drafts? Your existing saved drafts will be kept.'))return;
+      setDrafts(merged);setActive(merged[merged.length-incoming.length]||newDraft(String(Date.now())));setDirty(false);
       if(blocked){setPendingStorage(true);setMessage('Imported drafts are session-only. Existing unreadable storage was preserved.');return;}
       try{localStorage.setItem(storageKey,JSON.stringify({version:1,drafts:merged}));setPendingStorage(false);setMessage('Quote backup imported.');}catch{setPendingStorage(true);setMessage('Imported drafts are session-only because storage is unavailable or full.');}
     } catch(error){setMessage((error as Error).message || 'The backup could not be read. Existing drafts are unchanged.');}
