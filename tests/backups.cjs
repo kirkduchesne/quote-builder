@@ -18,3 +18,4 @@ const twenty=Array.from({length:20},(_,i)=>({...draft,id:String(i)}));
 assert.equal(backup.mergeBackup(twenty,[]).length,20);
 assert.throws(()=>backup.mergeBackup(twenty,[draft]));
 assert.equal(twenty.length,20);
+(async()=>{await assert.rejects(backup.readBackupFile({size:1,text:async()=>{throw Error('denied')}}),/could not be read/);await assert.rejects(backup.readBackupFile({size:1000001,text:async()=>raw}));})();

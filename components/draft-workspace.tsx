@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { newDraft, parseDrafts, validDraft, type Draft } from "@/lib/drafts";
 import { duplicateDraft, searchDrafts, orderDrafts } from "@/lib/quote-operations";
 import { Input } from "@/components/ui/input";
-import { downloadBackup, parseBackup, mergeBackup } from "@/lib/backups";
+import { downloadBackup, parseBackup, mergeBackup, readBackupFile } from "@/lib/backups";
 const storageKey = "quote-builder-drafts-v1";
 export function DraftWorkspace() {
   const [search,setSearch]=useState('');
@@ -56,8 +56,7 @@ export function DraftWorkspace() {
   const dirtyRef=useRef(dirty); dirtyRef.current=dirty;
   async function importFile(file:File) {
     try {
-      if(file.size>1000000)throw Error('Choose a quote backup no larger than 1 MB.');
-      const incoming=parseBackup(await file.text());
+      const incoming=await readBackupFile(file);
       const merged=mergeBackup(draftsRef.current,incoming);
       if(!window.confirm(dirtyRef.current ? 'Import drafts and discard unsaved quote changes? Saved drafts are kept. Cancel to save your edits first.' : 'Import saved drafts? Your existing saved drafts will be kept.'))return;
       setDrafts(merged);setActive(merged[merged.length-incoming.length]||newDraft(String(Date.now())));setDirty(false);

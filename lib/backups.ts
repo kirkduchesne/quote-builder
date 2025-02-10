@@ -20,3 +20,7 @@ export function downloadBackup(drafts: Draft[]) {
   try { const link=document.createElement('a');link.href=url;link.download='quote-builder-drafts.json';document.body.appendChild(link);link.click();link.remove(); }
   finally { setTimeout(()=>URL.revokeObjectURL(url),1000); }
 }
+export async function readBackupFile(file: Pick<File, 'size' | 'text'>) {
+  if(file.size>1000000)throw new Error('Choose a quote backup no larger than 1 MB.');
+  try { return parseBackup(await file.text()); } catch(error) { throw new Error('Backup could not be read: '+(error as Error).message); }
+}
