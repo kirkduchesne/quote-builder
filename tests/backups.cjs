@@ -19,3 +19,5 @@ assert.equal(backup.mergeBackup(twenty,[]).length,20);
 assert.throws(()=>backup.mergeBackup(twenty,[draft]));
 assert.equal(twenty.length,20);
 (async()=>{await assert.rejects(backup.readBackupFile({size:1,text:async()=>{throw Error('denied')}}),/could not be read/);await assert.rejects(backup.readBackupFile({size:1000001,text:async()=>raw}));})();
+assert.throws(()=>backup.parseBackup(JSON.stringify({kind:'quote-builder',version:1,drafts:[{...draft,name:''}]})));
+const preserved=JSON.stringify([draft]);assert.throws(()=>backup.mergeBackup([draft],[{...draft,name:''}]));assert.equal(JSON.stringify([draft]),preserved);
