@@ -48,3 +48,8 @@ The validated version-one storage format is tested against malformed data, inval
 ## 2025 service templates
 
 Create up to 30 named service templates with a description, quantity, and unit price. Search, edit, delete, or insert them into a quote. Templates are stored separately from drafts in this browser. Invalid storage is preserved and conflicting writes remain session-only. Unfinished template edits trigger a leave-page prompt; finish or cancel them before leaving. These January 2025 milestones are reconstructions created in September 2026 with intentionally assigned dates.
+
+
+## Portable quote drafts
+
+Duplicate and reorder quote lines, search saved quote names or references, sort drafts by name, and duplicate a saved quote. Export validated saved drafts as a JSON backup. Import merges valid drafts with new identifiers and descriptive names for collisions, never silently replacing an existing saved quote. The combined collection remains limited to 20 drafts and backup files to 1 MB. Import asks before discarding unfinished quote edits. Templates and unfinished edits are not included in draft backups.
