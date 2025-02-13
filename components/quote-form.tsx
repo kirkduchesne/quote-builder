@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { calculateTotal, dollars, parseCents } from "@/lib/money";
 
-import { type Draft, type Item, newDraft, unusedItemId } from "@/lib/drafts";
+import { type Draft, type Item, newDraft, unusedItemId, normalizedQuoteName } from "@/lib/drafts";
 import { TemplateManager } from "@/components/template-manager";
 import { templateItem } from "@/lib/templates";
 import { duplicateLine, moveLineUp, moveLineDown } from "@/lib/quote-operations";
@@ -39,7 +39,7 @@ export function QuoteForm({
     onDirty?.(
       JSON.stringify({
         ...initial,
-        name: name.trim(),
+        name: normalizedQuoteName(name)!,
         reference,
         notes,
         items,
@@ -284,7 +284,7 @@ export function QuoteForm({
           className="mt-4 mr-3 print:hidden"
           disabled={
             editing !== null ||
-            !name.trim() ||
+            !normalizedQuoteName(name) ||
             !validDiscount ||
             !!description ||
             !!price ||
@@ -293,7 +293,7 @@ export function QuoteForm({
           onClick={() =>
             onSave({
               ...initial,
-              name: name.trim(),
+              name: normalizedQuoteName(name)!,
               reference,
               notes,
               items,
@@ -311,7 +311,7 @@ export function QuoteForm({
           editing !== null ||
           !items.length ||
           !validDiscount ||
-          !name.trim() ||
+          !normalizedQuoteName(name) ||
           !!description ||
           !!price ||
           quantity !== "1"

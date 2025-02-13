@@ -80,3 +80,7 @@ export function unusedItemId(items: Item[]): number {
   while (used.has(id)) id += 1;
   return id;
 }
+
+export function normalizedQuoteName(value: string): string | null {
+  const name=value.trim(); return name.length>0 && name.length<=80 ? name : null;
+}
