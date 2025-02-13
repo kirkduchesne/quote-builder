@@ -187,9 +187,10 @@ export function DraftWorkspace() {
           Delete draft
         </Button>
       </div>
-      <div className="my-4 print:hidden"><Button type="button" variant="outline" onClick={()=>{try{downloadBackup(drafts);setMessage('Saved drafts exported. Unfinished quote or template edits are not included.');}catch{setMessage('The backup download could not start. Keep this page open and try again.');}}}>Export saved drafts</Button><label htmlFor="quote-backup" className="mt-3">Import quote backup</label><input id="quote-backup" type="file" accept=".json,application/json" onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)void importFile(file);}} /></div>
+      <details className="my-4 print:hidden"><summary className="cursor-pointer font-medium">Import or export quote backups</summary><div className="mt-3"><Button type="button" variant="outline" onClick={()=>{try{downloadBackup(drafts);setMessage('Saved drafts exported. Unfinished quote or template edits are not included.');}catch{setMessage('The backup download could not start. Keep this page open and try again.');}}}>Export saved drafts</Button><label htmlFor="quote-backup" className="mt-3">Import quote backup</label><input id="quote-backup" type="file" accept=".json,application/json" onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)void importFile(file);}} /></div></details>
       {pendingStorage ? <p className="rounded border border-amber-700 p-3 print:hidden">Some draft changes are only in this session. Export saved drafts before closing this page.</p> : null}
       <p className="print:hidden">{searchDrafts(drafts,search).length} saved drafts match. The current quote remains available.</p>
+      <p className="text-sm print:hidden">{dirty ? 'Quote has unsaved changes.' : drafts.some(d=>d.id===active.id) ? 'Quote matches its saved draft.' : 'New quote — not saved yet.'}</p>
       <p role="status" className="mb-4 print:hidden">
         {message}
       </p>
