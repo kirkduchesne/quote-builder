@@ -42,3 +42,6 @@ assert.equal(nextItem.id, 1);
 assert(validDraft({...draft,items:[highId,nextItem]}));
 const {normalizedQuoteName}=require('../.test-build/drafts.js');
 assert.equal(normalizedQuoteName(' Work '),'Work');assert.equal(normalizedQuoteName(' '),null);assert.equal(normalizedQuoteName('x'.repeat(81)),null);
+assert(!validDraft({...draft,reference:'x'.repeat(81)}));
+assert(validDraft({...draft,reference:'x'.repeat(80),notes:'x'.repeat(1000)}));
+assert(!validDraft({...draft,items:[{...item,description:'x'.repeat(121)}]}));
