@@ -165,7 +165,7 @@ export function QuoteForm({
         <Button type="submit">
           {editing === null ? "Add item" : "Update item"}
         </Button>
-        {editing !== null ? (
+        {(editing !== null || description || price || quantity !== "1") ? (
           <Button
             type="button"
             variant="outline"
@@ -176,7 +176,7 @@ export function QuoteForm({
               setPrice("");
             }}
           >
-            Cancel edit
+            Cancel line
           </Button>
         ) : null}
       </form>
