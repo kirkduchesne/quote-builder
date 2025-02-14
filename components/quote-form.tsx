@@ -127,6 +127,7 @@ export function QuoteForm({
       <p className="hidden break-words print:block">{reference}</p>
       {(description || price || editing !== null) ? <p className="print:hidden">Using a service template will ask before replacing the unfinished line editor.</p> : null}
       <TemplateManager onInsert={template=>{if((description || price || quantity !== '1' || editing !== null) && !window.confirm('Discard the unfinished line item before using this template?'))return;try{setItems([...items,templateItem(template,items)]);setEditing(null);setDescription('');setPrice('');setQuantity('1');setMessage('Service template added.');}catch(error){setMessage((error as Error).message);}}} />
+      {(editing !== null || description || price || quantity !== '1') ? <p role="status" className="print:hidden">A line is unfinished. Add or update it, or choose Cancel line before saving the draft.</p> : null}
       <form
         className="grid gap-4 sm:grid-cols-3 print:hidden"
         onSubmit={addItem}
