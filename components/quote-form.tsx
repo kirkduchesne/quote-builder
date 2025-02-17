@@ -131,6 +131,7 @@ export function QuoteForm({
       <form
         className="grid gap-4 sm:grid-cols-3 print:hidden"
         onSubmit={addItem}
+        onKeyDown={event=>{if(event.key==='Escape' && (editing!==null || description || price || quantity!=='1')){event.preventDefault();setEditing(null);setDescription('');setQuantity('1');setPrice('');setMessage('Line editor cleared.');descriptionRef.current?.focus();}}}
       >
         <div>
           <label htmlFor="description">Description</label>
