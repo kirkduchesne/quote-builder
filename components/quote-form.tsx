@@ -195,8 +195,8 @@ export function QuoteForm({
               <span className="mr-2 text-sm">{index + 1}.</span>{item.description} · {item.quantity} × {dollars(item.cents)} ={" "}
               {dollars(item.quantity * item.cents)}
             </span>{" "}
-            <Button type="button" variant="ghost" className="print:hidden" disabled={editing !== null || index === 0} onClick={()=>{setItems(moveLineUp(items,item.id));setMessage('Line moved up.');}}>Move up</Button>
-            <Button type="button" variant="ghost" className="print:hidden" disabled={editing !== null || index === items.length-1} onClick={()=>{setItems(moveLineDown(items,item.id));setMessage('Line moved down.');}}>Move down</Button>
+            <Button type="button" variant="ghost" className="print:hidden" disabled={editing !== null || index === 0} onClick={()=>{setItems(moveLineUp(items,item.id));setMessage(item.description+' moved to line '+index+'.');}}>Move up</Button>
+            <Button type="button" variant="ghost" className="print:hidden" disabled={editing !== null || index === items.length-1} onClick={()=>{setItems(moveLineDown(items,item.id));setMessage(item.description+' moved to line '+(index+2)+'.');}}>Move down</Button>
             <Button type="button" variant="outline" className="print:hidden" disabled={editing !== null || items.length >= 100} onClick={()=>{setItems(duplicateLine(items,item.id));setMessage('Line duplicated.');}}>Duplicate line</Button>
             <Button
               type="button"
@@ -209,6 +209,7 @@ export function QuoteForm({
                   !window.confirm("Discard the unfinished line item?")
                 )
                   return;
+                setMessage('Editing '+item.description+'.');
                 setEditing(item.id);
                 setDescription(item.description);
                 setQuantity(String(item.quantity));
