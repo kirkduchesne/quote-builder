@@ -117,6 +117,7 @@ export function DraftWorkspace() {
     const remaining = drafts.filter((d) => d.id !== active.id);
     setDrafts(remaining);
     setActive(remaining[0] || newDraft(String(Date.now())));
+    requestAnimationFrame(()=>document.getElementById("quote-name")?.focus());
     setDirty(false);
     if (blocked) {
       setPendingStorage(true);
