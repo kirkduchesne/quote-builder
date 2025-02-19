@@ -34,6 +34,7 @@ export function QuoteForm({
   const [notes, setNotes] = useState(initial.notes);
   useEffect(() => {
     setItems(initial.items); setName(initial.name); setReference(initial.reference); setNotes(initial.notes); setDiscount(String(initial.discount)); setEditing(null); setDescription(''); setQuantity('1'); setPrice(''); setMessage('');
+    requestAnimationFrame(()=>document.getElementById('quote-name')?.focus());
   }, [initial.id]);
   useEffect(() => {
     onDirty?.(
