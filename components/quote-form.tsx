@@ -103,7 +103,7 @@ export function QuoteForm({
     setMessage("Item added.");
   }
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm sm:p-8 print:border-0 print:shadow-none">
+    <div id="quote-workspace" className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm sm:p-8 print:border-0 print:shadow-none">
       <div className="mb-6 grid gap-4 sm:grid-cols-2 print:hidden">
         <div>
           <label htmlFor="quote-name">Quote name</label>
