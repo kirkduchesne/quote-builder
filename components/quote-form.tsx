@@ -128,7 +128,7 @@ export function QuoteForm({
       <p className="hidden break-words print:block">{reference}</p>
       {(description || price || editing !== null) ? <p className="print:hidden">Using a service template will ask before replacing the unfinished line editor.</p> : null}
       <TemplateManager onInsert={template=>{if((description || price || quantity !== '1' || editing !== null) && !window.confirm('Discard the unfinished line item before using this template?'))return;try{setItems([...items,templateItem(template,items)]);setEditing(null);setDescription('');setPrice('');setQuantity('1');setMessage('Service template added.');}catch(error){setMessage((error as Error).message);}}} />
-      {(editing !== null || description || price || quantity !== '1') ? <p role="status" className="print:hidden">A line is unfinished. Add or update it, or choose Cancel line before saving the draft.</p> : null}
+      {(editing !== null || description || price || quantity !== '1') ? <p id="line-message" role="status" className="print:hidden">A line is unfinished. Add or update it, or choose Cancel line before saving the draft.</p> : null}
       <form
         className="grid gap-4 sm:grid-cols-3 print:hidden"
         onSubmit={addItem}
@@ -138,7 +138,7 @@ export function QuoteForm({
           <label htmlFor="description">Description</label>
           <Input
             ref={descriptionRef}
-            id="description"
+            id="description" aria-describedby="line-message"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             maxLength={120}
@@ -148,7 +148,7 @@ export function QuoteForm({
         <div>
           <label htmlFor="quantity">Quantity</label>
           <Input
-            id="quantity"
+            id="quantity" aria-describedby="line-message"
             inputMode="numeric"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
@@ -158,7 +158,7 @@ export function QuoteForm({
         <div>
           <label htmlFor="price">Unit price (USD)</label>
           <Input
-            id="price"
+            id="price" aria-describedby="line-message"
             inputMode="decimal"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
