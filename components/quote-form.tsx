@@ -277,7 +277,7 @@ export function QuoteForm({
       <dl className="mt-6 grid grid-cols-2 gap-3 border-t border-stone-200 pt-4 text-lg">
         <dt>Subtotal</dt>
         <dd>{dollars(totals.subtotal)}</dd>
-        <dt>Discount</dt>
+        <dt>Discount <span className="hidden print:inline">({validDiscount ? discount : 0}%)</span></dt>
         <dd>{dollars(totals.saving)}</dd>
         <dt>Total</dt>
         <dd>{dollars(totals.total)}</dd>
