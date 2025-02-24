@@ -266,9 +266,7 @@ export function QuoteForm({
         />
       </div>
       {notes ? (
-        <p className="hidden whitespace-pre-wrap break-words print:block">
-          {notes}
-        </p>
+        <div className="hidden print:block"><h3 className="mt-4 font-semibold">Notes</h3><p className="whitespace-pre-wrap break-words">{notes}</p></div>
       ) : null}
       <p className="mt-4 text-sm print:hidden">
         Finish or cancel the current line item before saving or printing. Save
