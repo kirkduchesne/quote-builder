@@ -22,3 +22,5 @@
     break-inside: avoid;
   }
 }
+
+@media print { #quote-workspace li { break-inside: avoid; page-break-inside: avoid; } #quote-workspace dl { break-inside: avoid; } }
