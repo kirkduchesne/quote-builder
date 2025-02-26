@@ -6,8 +6,10 @@ import { newDraft, parseDrafts, validDraft, type Draft } from "@/lib/drafts";
 import { duplicateDraft, searchDrafts, orderDrafts } from "@/lib/quote-operations";
 import { Input } from "@/components/ui/input";
 import { downloadBackup, parseBackup, mergeBackup, readBackupFile } from "@/lib/backups";
+import { writeDrafts } from "@/lib/draft-storage";
 const storageKey = "quote-builder-drafts-v1";
 export function DraftWorkspace() {
+  const savedRaw=useRef<string|null>(null);
   const [search,setSearch]=useState('');
   const [order,setOrder]=useState('added');
   const [drafts, setDrafts] = useState<Draft[]>([]);
@@ -19,6 +21,7 @@ export function DraftWorkspace() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(storageKey);
+      savedRaw.current=raw;
       const saved = raw === null ? [] : parseDrafts(raw);
       setDrafts(saved);
       setActive(saved[0] || newDraft("first"));
@@ -62,7 +65,7 @@ export function DraftWorkspace() {
       if(!window.confirm(incoming.length+' draft(s) ready to import. '+(dirtyRef.current ? 'Import drafts and discard unsaved quote changes? Saved drafts are kept. Cancel to save your edits first.' : 'Import saved drafts? Your existing saved drafts will be kept.')))return;
       setDrafts(merged);setActive(merged[merged.length-incoming.length]||newDraft(String(Date.now())));setDirty(false);
       if(blocked){setPendingStorage(true);setMessage('Imported drafts are session-only. Existing unreadable storage was preserved.');return;}
-      try{localStorage.setItem(storageKey,JSON.stringify({version:1,drafts:merged}));setPendingStorage(false);setMessage('Quote backup imported.');}catch{setPendingStorage(true);setMessage('Imported drafts are session-only because storage is unavailable or full.');}
+      try{savedRaw.current=writeDrafts(localStorage,storageKey,merged,savedRaw.current);setPendingStorage(false);setMessage('Quote backup imported.');}catch{setPendingStorage(true);setMessage('Imported drafts are session-only because storage is unavailable or full.');}
     } catch(error){setMessage((error as Error).message || 'The backup could not be read. Existing drafts are unchanged.');}
   }
   function canLeave() {
@@ -93,10 +96,7 @@ export function DraftWorkspace() {
       return;
     }
     try {
-      localStorage.setItem(
-        storageKey,
-        JSON.stringify({ version: 1, drafts: saved }),
-      );
+      savedRaw.current=writeDrafts(localStorage,storageKey,saved,savedRaw.current);
       setPendingStorage(false);
       setMessage("Draft saved in this browser.");
     } catch {
@@ -125,10 +125,7 @@ export function DraftWorkspace() {
       return;
     }
     try {
-      localStorage.setItem(
-        storageKey,
-        JSON.stringify({ version: 1, drafts: remaining }),
-      );
+      savedRaw.current=writeDrafts(localStorage,storageKey,remaining,savedRaw.current);
       setPendingStorage(false);
       setMessage("Draft deleted.");
     } catch {
