@@ -21,3 +21,6 @@ assert.equal(twenty.length,20);
 (async()=>{await assert.rejects(backup.readBackupFile({size:1,text:async()=>{throw Error('denied')}}),/could not be read/);await assert.rejects(backup.readBackupFile({size:1000001,text:async()=>raw}));})();
 assert.throws(()=>backup.parseBackup(JSON.stringify({kind:'quote-builder',version:1,drafts:[{...draft,name:''}]})));
 const preserved=JSON.stringify([draft]);assert.throws(()=>backup.mergeBackup([draft],[{...draft,name:''}]));assert.equal(JSON.stringify([draft]),preserved);
+const complete={...draft,name:'Sample estimate',reference:'DEMO-1',notes:'Line one\nLine two',discount:15,items:[{id:1,description:'Sample work',quantity:3,cents:1234}]};
+assert.deepEqual(backup.parseBackup(backup.serializeBackup([complete])),[complete]);
+const merged=backup.mergeBackup([complete],[complete]);assert.equal(merged[1].items[0].cents,1234);assert.equal(merged[1].notes,complete.notes);
