@@ -1,15 +1,25 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { calculateTotal, dollars, parseCents } from "@/lib/money";
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { calculateTotal, dollars, parseCents } from '@/lib/money';
 
-import { type Draft, type Item, newDraft, unusedItemId, normalizedQuoteName } from "@/lib/drafts";
-import { TemplateManager } from "@/components/template-manager";
-import { templateItem } from "@/lib/templates";
-import { duplicateLine, moveLineUp, moveLineDown } from "@/lib/quote-operations";
-const blank = newDraft("unsaved");
+import {
+  type Draft,
+  type Item,
+  newDraft,
+  unusedItemId,
+  normalizedQuoteName,
+} from '@/lib/drafts';
+import { TemplateManager } from '@/components/template-manager';
+import { templateItem } from '@/lib/templates';
+import {
+  duplicateLine,
+  moveLineUp,
+  moveLineDown,
+} from '@/lib/quote-operations';
+const blank = newDraft('unsaved');
 
 export function QuoteForm({
   initial = blank,
@@ -22,10 +32,10 @@ export function QuoteForm({
 }) {
   const [items, setItems] = useState<Item[]>(initial.items);
   const [editing, setEditing] = useState<number | null>(null);
-  const [description, setDescription] = useState("");
-  const [quantity, setQuantity] = useState("1");
-  const [price, setPrice] = useState("");
-  const [message, setMessage] = useState("");
+  const [description, setDescription] = useState('');
+  const [quantity, setQuantity] = useState('1');
+  const [price, setPrice] = useState('');
+  const [message, setMessage] = useState('');
   const [discount, setDiscount] = useState(String(initial.discount));
   const validDiscount = /^\d{1,3}$/.test(discount) && Number(discount) <= 100;
   const totals = calculateTotal(items, validDiscount ? Number(discount) : 0);
@@ -33,8 +43,17 @@ export function QuoteForm({
   const [reference, setReference] = useState(initial.reference);
   const [notes, setNotes] = useState(initial.notes);
   useEffect(() => {
-    setItems(initial.items); setName(initial.name); setReference(initial.reference); setNotes(initial.notes); setDiscount(String(initial.discount)); setEditing(null); setDescription(''); setQuantity('1'); setPrice(''); setMessage('');
-    requestAnimationFrame(()=>document.getElementById('quote-name')?.focus());
+    setItems(initial.items);
+    setName(initial.name);
+    setReference(initial.reference);
+    setNotes(initial.notes);
+    setDiscount(String(initial.discount));
+    setEditing(null);
+    setDescription('');
+    setQuantity('1');
+    setPrice('');
+    setMessage('');
+    requestAnimationFrame(() => document.getElementById('quote-name')?.focus());
   }, [initial.id]);
   useEffect(() => {
     onDirty?.(
@@ -49,7 +68,7 @@ export function QuoteForm({
         editing !== null ||
         !!description ||
         !!price ||
-        quantity !== "1",
+        quantity !== '1'
     );
   }, [
     name,
@@ -68,7 +87,7 @@ export function QuoteForm({
   function addItem(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (items.length >= 100 && editing === null) {
-      setMessage("A quote can contain at most 100 line items.");
+      setMessage('A quote can contain at most 100 line items.');
       return;
     }
     const cents = parseCents(price);
@@ -80,7 +99,7 @@ export function QuoteForm({
       cents === null
     ) {
       setMessage(
-        "Enter a description, quantity from 1 to 999, and price from 0 to 999999.99 with at most two decimals.",
+        'Enter a description, quantity from 1 to 999, and price from 0 to 999999.99 with at most two decimals.'
       );
       return;
     }
@@ -93,17 +112,20 @@ export function QuoteForm({
     setItems(
       editing === null
         ? [...items, item]
-        : items.map((row) => (row.id === editing ? item : row)),
+        : items.map((row) => (row.id === editing ? item : row))
     );
     setEditing(null);
     descriptionRef.current?.focus();
-    setDescription("");
-    setQuantity("1");
-    setPrice("");
-    setMessage("Item added.");
+    setDescription('');
+    setQuantity('1');
+    setPrice('');
+    setMessage('Item added.');
   }
   return (
-    <div id="quote-workspace" className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm sm:p-8 print:border-0 print:shadow-none">
+    <div
+      id="quote-workspace"
+      className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm sm:p-8 print:border-0 print:shadow-none"
+    >
       <div className="mb-6 grid gap-4 sm:grid-cols-2 print:hidden">
         <div>
           <label htmlFor="quote-name">Quote name</label>
@@ -125,20 +147,68 @@ export function QuoteForm({
         </div>
       </div>
       <h2 className="hidden break-words text-2xl print:block">{name}</h2>
-      {reference ? <p className="hidden break-words print:block"><strong>Reference:</strong> {reference}</p> : null}
-      {(description || price || editing !== null) ? <p className="print:hidden">Using a service template will ask before replacing the unfinished line editor.</p> : null}
-      <TemplateManager onInsert={template=>{if((description || price || quantity !== '1' || editing !== null) && !window.confirm('Discard the unfinished line item before using this template?'))return;try{setItems([...items,templateItem(template,items)]);setEditing(null);setDescription('');setPrice('');setQuantity('1');setMessage('Service template added.');}catch(error){setMessage((error as Error).message);}}} />
-      {(editing !== null || description || price || quantity !== '1') ? <p id="line-message" role="status" className="print:hidden">A line is unfinished. Add or update it, or choose Cancel line before saving the draft.</p> : null}
+      {reference ? (
+        <p className="hidden break-words print:block">
+          <strong>Reference:</strong> {reference}
+        </p>
+      ) : null}
+      {description || price || editing !== null ? (
+        <p className="print:hidden">
+          Using a service template will ask before replacing the unfinished line
+          editor.
+        </p>
+      ) : null}
+      <TemplateManager
+        onInsert={(template) => {
+          if (
+            (description || price || quantity !== '1' || editing !== null) &&
+            !window.confirm(
+              'Discard the unfinished line item before using this template?'
+            )
+          )
+            return;
+          try {
+            setItems([...items, templateItem(template, items)]);
+            setEditing(null);
+            setDescription('');
+            setPrice('');
+            setQuantity('1');
+            setMessage('Service template added.');
+          } catch (error) {
+            setMessage((error as Error).message);
+          }
+        }}
+      />
+      {editing !== null || description || price || quantity !== '1' ? (
+        <p id="line-message" role="status" className="print:hidden">
+          A line is unfinished. Add or update it, or choose Cancel line before
+          saving the draft.
+        </p>
+      ) : null}
       <form
         className="grid gap-4 sm:grid-cols-3 print:hidden"
         onSubmit={addItem}
-        onKeyDown={event=>{if(event.key==='Escape' && (editing!==null || description || price || quantity!=='1')){event.preventDefault();setEditing(null);setDescription('');setQuantity('1');setPrice('');setMessage('Line editor cleared.');descriptionRef.current?.focus();}}}
+        onKeyDown={(event) => {
+          if (
+            event.key === 'Escape' &&
+            (editing !== null || description || price || quantity !== '1')
+          ) {
+            event.preventDefault();
+            setEditing(null);
+            setDescription('');
+            setQuantity('1');
+            setPrice('');
+            setMessage('Line editor cleared.');
+            descriptionRef.current?.focus();
+          }
+        }}
       >
         <div>
           <label htmlFor="description">Description</label>
           <Input
             ref={descriptionRef}
-            id="description" aria-describedby="line-message"
+            id="description"
+            aria-describedby="line-message"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             maxLength={120}
@@ -148,7 +218,8 @@ export function QuoteForm({
         <div>
           <label htmlFor="quantity">Quantity</label>
           <Input
-            id="quantity" aria-describedby="line-message"
+            id="quantity"
+            aria-describedby="line-message"
             inputMode="numeric"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
@@ -158,7 +229,8 @@ export function QuoteForm({
         <div>
           <label htmlFor="price">Unit price (USD)</label>
           <Input
-            id="price" aria-describedby="line-message"
+            id="price"
+            aria-describedby="line-message"
             inputMode="decimal"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
@@ -166,17 +238,17 @@ export function QuoteForm({
           />
         </div>
         <Button type="submit">
-          {editing === null ? "Add item" : "Update item"}
+          {editing === null ? 'Add item' : 'Update item'}
         </Button>
-        {(editing !== null || description || price || quantity !== "1") ? (
+        {editing !== null || description || price || quantity !== '1' ? (
           <Button
             type="button"
             variant="outline"
             onClick={() => {
               setEditing(null);
-              setDescription("");
-              setQuantity("1");
-              setPrice("");
+              setDescription('');
+              setQuantity('1');
+              setPrice('');
             }}
           >
             Cancel line
@@ -193,24 +265,65 @@ export function QuoteForm({
             key={item.id}
           >
             <span className="min-w-0 break-all">
-              <span className="mr-2 text-sm">{index + 1}.</span>{item.description} · {item.quantity} × {dollars(item.cents)} ={" "}
+              <span className="mr-2 text-sm">{index + 1}.</span>
+              {item.description} · {item.quantity} × {dollars(item.cents)} ={' '}
               {dollars(item.quantity * item.cents)}
-            </span>{" "}
-            <Button type="button" variant="ghost" className="print:hidden" disabled={editing !== null || index === 0} aria-label={"Move line "+(index+1)+" up"} onClick={()=>{setItems(moveLineUp(items,item.id));setMessage(item.description+' moved to line '+index+'.');}}>Move up</Button>
-            <Button type="button" variant="ghost" className="print:hidden" disabled={editing !== null || index === items.length-1} aria-label={"Move line "+(index+1)+" down"} onClick={()=>{setItems(moveLineDown(items,item.id));setMessage(item.description+' moved to line '+(index+2)+'.');}}>Move down</Button>
-            <Button type="button" variant="outline" className="print:hidden" disabled={editing !== null || items.length >= 100} aria-label={"Duplicate line "+(index+1)+": "+item.description} onClick={()=>{setItems(duplicateLine(items,item.id));setMessage('Line duplicated.');}}>Duplicate line</Button>
+            </span>{' '}
+            <Button
+              type="button"
+              variant="ghost"
+              className="print:hidden"
+              disabled={editing !== null || index === 0}
+              aria-label={'Move line ' + (index + 1) + ' up'}
+              onClick={() => {
+                setItems(moveLineUp(items, item.id));
+                setMessage(item.description + ' moved to line ' + index + '.');
+              }}
+            >
+              Move up
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className="print:hidden"
+              disabled={editing !== null || index === items.length - 1}
+              aria-label={'Move line ' + (index + 1) + ' down'}
+              onClick={() => {
+                setItems(moveLineDown(items, item.id));
+                setMessage(
+                  item.description + ' moved to line ' + (index + 2) + '.'
+                );
+              }}
+            >
+              Move down
+            </Button>
             <Button
               type="button"
               variant="outline"
               className="print:hidden"
-              aria-label={"Edit " + item.description}
+              disabled={editing !== null || items.length >= 100}
+              aria-label={
+                'Duplicate line ' + (index + 1) + ': ' + item.description
+              }
+              onClick={() => {
+                setItems(duplicateLine(items, item.id));
+                setMessage('Line duplicated.');
+              }}
+            >
+              Duplicate line
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="print:hidden"
+              aria-label={'Edit ' + item.description}
               onClick={() => {
                 if (
                   (description || price) &&
-                  !window.confirm("Discard the unfinished line item?")
+                  !window.confirm('Discard the unfinished line item?')
                 )
                   return;
-                setMessage('Editing '+item.description+'.');
+                setMessage('Editing ' + item.description + '.');
                 setEditing(item.id);
                 setDescription(item.description);
                 setQuantity(String(item.quantity));
@@ -225,10 +338,10 @@ export function QuoteForm({
               disabled={editing !== null}
               variant="ghost"
               className="print:hidden"
-              aria-label={"Remove " + item.description}
+              aria-label={'Remove ' + item.description}
               onClick={() => {
                 setItems(items.filter((row) => row.id !== item.id));
-                setMessage("Item removed.");
+                setMessage('Item removed.');
                 descriptionRef.current?.focus();
               }}
             >
@@ -250,8 +363,8 @@ export function QuoteForm({
         />
         <p id="discount-help">
           {validDiscount
-            ? "Whole percentages from 0 to 100."
-            : "Enter a whole percentage from 0 to 100. Totals exclude the invalid discount."}
+            ? 'Whole percentages from 0 to 100.'
+            : 'Enter a whole percentage from 0 to 100. Totals exclude the invalid discount.'}
         </p>
       </div>
       <div className="mt-5 print:hidden">
@@ -266,7 +379,10 @@ export function QuoteForm({
         />
       </div>
       {notes ? (
-        <div className="hidden print:block"><h3 className="mt-4 font-semibold">Notes</h3><p className="whitespace-pre-wrap break-words">{notes}</p></div>
+        <div className="hidden print:block">
+          <h3 className="mt-4 font-semibold">Notes</h3>
+          <p className="whitespace-pre-wrap break-words">{notes}</p>
+        </div>
       ) : null}
       <p className="mt-4 text-sm print:hidden">
         Finish or cancel the current line item before saving or printing. Save
@@ -275,7 +391,12 @@ export function QuoteForm({
       <dl className="mt-6 grid grid-cols-2 gap-3 border-t border-stone-200 pt-4 text-lg">
         <dt>Subtotal</dt>
         <dd>{dollars(totals.subtotal)}</dd>
-        <dt>Discount <span className="hidden print:inline">({validDiscount ? discount : 0}%)</span></dt>
+        <dt>
+          Discount{' '}
+          <span className="hidden print:inline">
+            ({validDiscount ? discount : 0}%)
+          </span>
+        </dt>
         <dd>{dollars(totals.saving)}</dd>
         <dt>Total</dt>
         <dd>{dollars(totals.total)}</dd>
@@ -290,7 +411,7 @@ export function QuoteForm({
             !validDiscount ||
             !!description ||
             !!price ||
-            quantity !== "1"
+            quantity !== '1'
           }
           onClick={() =>
             onSave({
@@ -316,7 +437,7 @@ export function QuoteForm({
           !normalizedQuoteName(name) ||
           !!description ||
           !!price ||
-          quantity !== "1"
+          quantity !== '1'
         }
         onClick={() => window.print()}
       >

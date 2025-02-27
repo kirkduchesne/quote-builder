@@ -23,7 +23,26 @@
   }
 }
 
-@media print { #quote-workspace li { break-inside: avoid; page-break-inside: avoid; } #quote-workspace dl { break-inside: avoid; } }
+@media print {
+  #quote-workspace li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  #quote-workspace dl {
+    break-inside: avoid;
+  }
+}
 
-@page { margin: 18mm; }
-@media print { #quote-workspace { padding: 0; box-shadow: none; border: 0; } #quote-workspace h2 { margin-bottom: 8mm; } }
+@page {
+  margin: 18mm;
+}
+@media print {
+  #quote-workspace {
+    padding: 0;
+    box-shadow: none;
+    border: 0;
+  }
+  #quote-workspace h2 {
+    margin-bottom: 8mm;
+  }
+}
