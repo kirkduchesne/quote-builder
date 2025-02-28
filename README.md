@@ -1,55 +1,61 @@
 # Quote Builder
 
-A small project estimate worksheet.
+A local quote worksheet for turning repeatable services into clear, printable estimates. Build line items, reuse service templates, keep named drafts, and move saved quotes between browsers with validated JSON backups.
 
-Created in September 2026 as a present-day reconstruction with an initial September 2023 technology baseline and twelve dated maintenance milestones across 2024. Historical commit dates were intentionally assigned; they do not indicate original work or publication in 2023.
+![Quote Builder with an example estimate](docs/preview.png)
 
 ## Run
 
-Use Node 20, then `npm ci` and `npm run dev`. Open `http://localhost:3000`. Run `npm test`, `npm run typecheck`, and `npm run build` for checks.
+Use Node 20, then:
 
-The reconstruction was tested with Node 20.19.0, a later maintenance release. That patch release is not represented as having existed at the January 2024 milestone. This historical dependency set is for local portfolio demonstration, not a recommendation for a current production deployment.
+```sh
+npm ci
+npm run dev
+```
 
-## Workflow
+Open `http://localhost:3000`. For a production build, run `npm run build` followed by `npm start`.
 
-Add a description, a whole quantity from 1 to 999, and a USD unit price from 0 to 999999.99. Quotes support up to 100 line items. Remove unwanted rows and apply a whole percentage discount from 0 to 100. Prices are parsed into integer cents; the discount is rounded once to the nearest cent, with half-cent values rounded up.
+## Features
 
-Invalid discount input shows a message, leaves the displayed total undiscounted, and disables printing until corrected. Print uses the browser print dialog and omits editing controls. Save draft stores the named quote in this browser. Unsaved edits are not restored after reload. There are no accounts, payments, taxes, remote services, or saved customer records.
+- Create, edit, duplicate, reorder, and remove quote lines with USD prices calculated in integer cents.
+- Apply a whole-number discount from 0–100%; rounding happens once at the discount total.
+- Create up to 30 reusable service templates; search, edit, delete, and insert them into quotes.
+- Name, reference, search, sort, duplicate, and save up to 20 drafts.
+- Export saved drafts and import validated backups without replacing existing quotes. Identifier and name collisions receive new values.
+- Print the quote name, reference, ordered lines, discount, totals, and notes. Editing controls stay off the printout.
 
-## Technology and component provenance
+Finish a line with **Add item** or **Update item**, or use **Cancel line** / Escape before saving. Changing a quote name and saving renames the draft. Switching quotes asks before discarding unfinished quote edits. Template edits remain available when switching quotes.
 
-Initial baseline: Next.js 13.4.19 App Router, React 18.2.0, TypeScript 5.1.6, and Tailwind CSS 3.3.3. Exact dependencies and the lockfile were resolved with `npm install --before=2023-09-05T00:00:00Z --save-exact`.
+## Storage and limits
 
-The Button and Input components are copied from shadcn/ui revision [`c21ecfb665214e18cd5914ea319f925cd676e786`](https://github.com/shadcn-ui/ui/tree/c21ecfb665214e18cd5914ea319f925cd676e786), from before September 5, 2023:
+Everything stays in this browser's local storage; there are no accounts, network synchronization, payment processing, or tax services. Reloading discards edits that have not been saved. Clearing site data removes saved drafts and templates. Avoid storing sensitive customer information.
 
-- `apps/www/registry/default/ui/button.tsx` → `components/ui/button.tsx`
-- `apps/www/registry/default/ui/input.tsx` → `components/ui/input.tsx`
+Malformed saved data is left untouched. Failed writes are reported as session-only changes. Conflicting writes from another tab are rejected instead of silently overwriting its data. Keep the page open if saving fails; exporting saved drafts also includes drafts held only in the current session.
 
-Their original source is unchanged. The upstream MIT notice is included in `SHADCN-LICENSE.md`. The small `cn` helper and Tailwind theme supply their expected utilities and colors. No current component generator was used.
+Draft backups contain saved quotes, including their lines and notes. They exclude service templates and unfinished edits. Imports require confirmation, accept files up to 5 MB, and enforce the combined 20-draft limit. Template data has no portable backup feature.
+
+Each quote permits 100 lines, whole quantities from 1–999, and unit prices from $0–$999,999.99. Notes are limited to 1,000 characters. This remains a small estimate worksheet, not an invoicing or accounting system.
 
 ## Verification
 
-Money tests cover integer parsing, rejected exponent/negative/excess-precision inputs, subtotal calculation, half-cent rounding, full discount, empty quotes, and invalid line items. Browser checks cover adding/removing rows, invalid discount and quantity input, literal text rendering, narrow layouts, keyboard activation, and print output.
+```sh
+npm test
+npm run typecheck
+npm run build
+```
 
+The domain tests cover money boundaries, template and draft schemas, duplicate identifiers, line operations, backup roundtrips, import limits, and stale-storage protection. CI runs the tests and production build with pinned actions and Node 20.18.1.
 
-## 2024 maintenance
+The four browser suites—`tests/browser-regressions.cjs`, `tests/templates-browser.cjs`, `tests/backups-browser.cjs`, and `tests/worksheet-browser.cjs`—use an externally supplied Playwright runtime and a running app (`QUOTE_TEST_URL`, default `http://localhost:8504` for all four). They verify template insertion, retained template edits, failed storage writes, backup download/import/cancellation, keyboard controls, mobile overflow, and print output. The screenshot uses clearly labeled example data. Local verification used Node 20.19.0, a later maintenance patch, rather than claiming it existed at the January milestone.
 
-The January 23 milestone updates to Next.js 14.0.4, TypeScript 5.3.3, Tailwind CSS 3.4.1, and Node 20. The November 7 milestone updates to Next.js 14.2.17 and React 18.3.1. Each dependency resolution used its milestone date as the npm `--before` cutoff; registry checks covered 131 January and 130 November locked versions. The original shadcn components and license remain unchanged.
+## Project history and technology
 
-Twelve maintenance commits are assigned January 23, February 19, March 28, April 11, May 28, June 13, July 25, August 15, September 12, October 24, November 7, and December 10, 2024. The implementation was actually created in September 2026, including these maintenance changes.
+This is a present-day reconstruction created in **September 2026**. Historical commit dates were intentionally assigned and do not represent original work or publication in those years.
 
-Save up to 20 drafts with names, references, notes, line items, and discounts. Change the quote name and select **Save draft** to rename it. Use **Edit** to load a line item into the form, then **Update item** or **Cancel edit**. Finish or cancel any incomplete line item before saving or printing. Draft deletion requires confirmation; switching or creating a quote prompts before discarding unsaved changes.
+- **2023:** one-page line items, integer-cent totals, discounts, and printing.
+- **2024:** saved drafts, quote references and notes, line editing, and storage safeguards.
+- **January–February 2025:** service templates, quote organization, portable draft backups, and keyboard/print refinements.
 
-Storage is local to this browser. Invalid stored data is preserved; session changes cannot overwrite it. Storage failures are reported as session-only saves, and leaving the page prompts about changes not written to storage. Changes from another tab block writes until reload, avoiding silent overwrites. No account, network synchronization, or backup is provided. Clearing browser site data removes drafts. Do not store sensitive customer details in this local demonstration.
+The 2025 baseline uses Next.js 14.2.22, React 18.3.1, TypeScript 5.3.3, and Tailwind CSS 3.4.1. The January framework update was resolved with a January 7, 2025 cutoff; all 130 locked package versions were checked against publication dates. These historical dependencies have known advisories and are intended for local portfolio demonstration, not current production deployment.
 
-The validated version-one storage format is tested against malformed data, invalid values, duplicate identifiers, and size limits. Money regression cases include full-size quotes and half-cent discount rounding. Print includes the quote name, reference, notes, and calculated totals while hiding editing controls.
-
-
-## 2025 service templates
-
-Create up to 30 named service templates with a description, quantity, and unit price. Search, edit, delete, or insert them into a quote. Templates are stored separately from drafts in this browser. Invalid storage is preserved and conflicting writes remain session-only. Unfinished template edits trigger a leave-page prompt; finish or cancel them before leaving. These January 2025 milestones are reconstructions created in September 2026 with intentionally assigned dates.
-
-
-## Portable quote drafts
-
-Duplicate and reorder quote lines, search saved quote names or references, sort drafts by name, and duplicate a saved quote. Export validated saved drafts as a JSON backup. Import merges valid drafts with new identifiers and descriptive names for collisions, never silently replacing an existing saved quote. The combined collection remains limited to 20 drafts and backup files to 1 MB. Import asks before discarding unfinished quote edits. Templates and unfinished edits are not included in draft backups.
+Button and Input retain their original shadcn/ui source from revision [`c21ecfb665214e18cd5914ea319f925cd676e786`](https://github.com/shadcn-ui/ui/tree/c21ecfb665214e18cd5914ea319f925cd676e786), under `apps/www/registry/default/ui/`. The upstream MIT license is preserved in [SHADCN-LICENSE.md](SHADCN-LICENSE.md).

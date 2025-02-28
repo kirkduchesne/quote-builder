@@ -9,13 +9,13 @@ const raw = JSON.stringify({
 });
 assert.deepEqual(backup.parseBackup(raw), [draft]);
 for (const raw of [
-  'x'.repeat(1000001),
+  'x'.repeat(5000001),
   'null',
   '{}',
   JSON.stringify({ kind: 'quote-builder', version: 2, drafts: [] }),
 ])
   assert.throws(() => backup.parseBackup(raw));
-assert.throws(() => backup.parseBackup('😀'.repeat(250001)));
+assert.throws(() => backup.parseBackup('😀'.repeat(1250001)));
 assert.throws(() =>
   backup.parseBackup(
     JSON.stringify({
@@ -69,7 +69,7 @@ assert.equal(twenty.length, 20);
     /could not be read/
   );
   await assert.rejects(
-    backup.readBackupFile({ size: 1000001, text: async () => raw })
+    backup.readBackupFile({ size: 5000001, text: async () => raw })
   );
 })();
 assert.throws(() =>
@@ -98,3 +98,19 @@ assert.deepEqual(backup.parseBackup(backup.serializeBackup([complete])), [
 const merged = backup.mergeBackup([complete], [complete]);
 assert.equal(merged[1].items[0].cents, 1234);
 assert.equal(merged[1].notes, complete.notes);
+
+const escapedLine = {
+  id: 1,
+  description: '\0'.repeat(120),
+  quantity: 999,
+  cents: 99999999,
+};
+const largest = Array.from({ length: 20 }, (_, i) => ({
+  ...draft,
+  id: 'max-' + i,
+  name: '\0'.repeat(80),
+  reference: '\0'.repeat(80),
+  notes: '\0'.repeat(1000),
+  items: Array.from({ length: 100 }, (_, j) => ({ ...escapedLine, id: j + 1 })),
+}));
+assert.deepEqual(backup.parseBackup(backup.serializeBackup(largest)), largest);

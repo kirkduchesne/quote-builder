@@ -6,7 +6,7 @@ const assert = require('node:assert/strict');
   try {
     const page = await browser.newPage();
     page.on('dialog', (dialog) => dialog.accept());
-    await page.goto(process.env.QUOTE_TEST_URL || 'http://localhost:3000');
+    await page.goto(process.env.QUOTE_TEST_URL || 'http://localhost:8504');
     await page.getByRole('button', { name: 'Save draft', exact: true }).click();
     await page.evaluate(() => {
       window.restoreStorage = Storage.prototype.setItem;
@@ -58,7 +58,7 @@ const assert = require('node:assert/strict');
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   try {
     const page = await browser.newPage();
-    await page.goto(process.env.QUOTE_TEST_URL || 'http://localhost:3000');
+    await page.goto(process.env.QUOTE_TEST_URL || 'http://localhost:8504');
     await page
       .getByLabel('Quote name', { exact: true })
       .fill('  Padded quote  ');
@@ -117,11 +117,11 @@ const assert = require('node:assert/strict');
     assert(prompted, 'leaving a cleared edit must ask before discarding');
     assert(
       await page
-        .getByRole('button', { name: 'Cancel edit', exact: true })
+        .getByRole('button', { name: 'Cancel line', exact: true })
         .isVisible()
     );
     await page
-      .getByRole('button', { name: 'Cancel edit', exact: true })
+      .getByRole('button', { name: 'Cancel line', exact: true })
       .click();
     await page.waitForFunction(() =>
       window.dispatchEvent(new Event('beforeunload', { cancelable: true }))

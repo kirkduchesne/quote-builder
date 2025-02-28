@@ -21,6 +21,9 @@ export function DraftWorkspace() {
   const savedRaw = useRef<string | null>(null);
   const [search, setSearch] = useState('');
   const [order, setOrder] = useState('added');
+  const importBusy = useRef(false);
+  const [importing, setImporting] = useState(false);
+  const [resetVersion, setResetVersion] = useState(0);
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [active, setActive] = useState<Draft | null>(null);
   const [dirty, setDirty] = useState(false);
@@ -32,7 +35,7 @@ export function DraftWorkspace() {
       const raw = localStorage.getItem(storageKey);
       savedRaw.current = raw;
       const saved = raw === null ? [] : parseDrafts(raw);
-      setDrafts(saved);
+      updateCollection(saved);
       setActive(saved[0] || newDraft('first'));
     } catch {
       setBlocked(true);
@@ -68,7 +71,17 @@ export function DraftWorkspace() {
   draftsRef.current = drafts;
   const dirtyRef = useRef(dirty);
   dirtyRef.current = dirty;
+  function updateCollection(next: Draft[]) {
+    draftsRef.current = next;
+    setDrafts(next);
+  }
   async function importFile(file: File) {
+    if (importBusy.current) {
+      setMessage('A backup is already being read. Please wait.');
+      return;
+    }
+    importBusy.current = true;
+    setImporting(true);
     try {
       const incoming = await readBackupFile(file);
       const merged = mergeBackup(draftsRef.current, incoming);
@@ -86,7 +99,8 @@ export function DraftWorkspace() {
         )
       )
         return;
-      setDrafts(merged);
+      setResetVersion((value) => value + 1);
+      updateCollection(merged);
       setActive(
         merged[merged.length - incoming.length] || newDraft(String(Date.now()))
       );
@@ -118,6 +132,9 @@ export function DraftWorkspace() {
         (error as Error).message ||
           'The backup could not be read. Existing drafts are unchanged.'
       );
+    } finally {
+      importBusy.current = false;
+      setImporting(false);
     }
   }
   function canLeave() {
@@ -140,7 +157,7 @@ export function DraftWorkspace() {
       setMessage('Keep at most 20 drafts. Delete a saved draft first.');
       return;
     }
-    setDrafts(saved);
+    updateCollection(saved);
     setActive(draft);
     setDirty(false);
     if (blocked) {
@@ -175,7 +192,8 @@ export function DraftWorkspace() {
     )
       return;
     const remaining = drafts.filter((d) => d.id !== active.id);
-    setDrafts(remaining);
+    setResetVersion((value) => value + 1);
+    updateCollection(remaining);
     setActive(remaining[0] || newDraft(String(Date.now())));
     requestAnimationFrame(() => document.getElementById('quote-name')?.focus());
     setDirty(false);
@@ -235,6 +253,7 @@ export function DraftWorkspace() {
             onChange={(e) => {
               const selected = drafts.find((d) => d.id === e.target.value);
               if (selected && canLeave()) {
+                setResetVersion((value) => value + 1);
                 setActive(selected);
                 setDirty(false);
               }
@@ -260,6 +279,7 @@ export function DraftWorkspace() {
           type="button"
           onClick={() => {
             if (canLeave()) {
+              setResetVersion((value) => value + 1);
               setActive(newDraft(String(Date.now())));
               setDirty(false);
             }
@@ -322,6 +342,7 @@ export function DraftWorkspace() {
           </label>
           <input
             id="quote-backup"
+            disabled={importing}
             type="file"
             accept=".json,application/json"
             onChange={(e) => {
@@ -342,6 +363,11 @@ export function DraftWorkspace() {
         {searchDrafts(drafts, search).length} saved drafts match. The current
         quote remains available.
       </p>
+      {importing ? (
+        <p role="status" className="print:hidden">
+          Reading quote backup…
+        </p>
+      ) : null}
       <p className="text-sm print:hidden">
         {dirty
           ? 'Quote has unsaved changes.'
@@ -352,7 +378,12 @@ export function DraftWorkspace() {
       <p role="status" className="mb-4 print:hidden">
         {message}
       </p>
-      <QuoteForm initial={active} onSave={save} onDirty={setDirty} />
+      <QuoteForm
+        resetVersion={resetVersion}
+        initial={active}
+        onSave={save}
+        onDirty={setDirty}
+      />
     </>
   );
 }

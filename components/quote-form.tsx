@@ -23,10 +23,12 @@ const blank = newDraft('unsaved');
 
 export function QuoteForm({
   initial = blank,
+  resetVersion = 0,
   onSave,
   onDirty,
 }: {
   initial?: Draft;
+  resetVersion?: number;
   onSave?: (draft: Draft) => void;
   onDirty?: (dirty: boolean) => void;
 }) {
@@ -54,7 +56,7 @@ export function QuoteForm({
     setPrice('');
     setMessage('');
     requestAnimationFrame(() => document.getElementById('quote-name')?.focus());
-  }, [initial.id]);
+  }, [initial.id, resetVersion]);
   useEffect(() => {
     onDirty?.(
       JSON.stringify({
