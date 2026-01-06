@@ -5,3 +5,4 @@ require('./template-storage.cjs');
 require('./operations.cjs');
 require('./backups.cjs');
 require('./draft-storage.cjs');
+require('./revisions.cjs');
