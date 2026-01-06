@@ -21,3 +21,19 @@ export function validRevision(value: unknown): value is Revision {
     new Date(revision.capturedAt).toISOString() === revision.capturedAt &&
     validDraft(revision.quote);
 }
+
+export function parseRevisions(raw: string): Revision[] {
+  const value = JSON.parse(raw);
+  if (!value || value.version !== 1 || !Array.isArray(value.revisions) ||
+    value.revisions.length > revisionLimit || !value.revisions.every(validRevision) ||
+    new Set(value.revisions.map((r: Revision) => r.id)).size !== value.revisions.length) {
+    throw new Error('Invalid revision history');
+  }
+  const counts = new Map<string, number>();
+  for (const revision of value.revisions as Revision[]) {
+    const count = (counts.get(revision.quote.id) || 0) + 1;
+    if (count > sourceRevisionLimit) throw new Error('Too many revisions for one quote');
+    counts.set(revision.quote.id, count);
+  }
+  return value.revisions;
+}

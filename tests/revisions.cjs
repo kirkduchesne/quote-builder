@@ -6,3 +6,6 @@ assert.equal(revisions.validRevision(sample), true);
 assert.equal(revisions.validRevision({ ...sample, capturedAt: '2026-02-30T15:00:00.000Z' }), false);
 assert.equal(revisions.validRevision({ ...sample, label: ' ' }), false);
 console.log('Revision records passed');
+assert.deepEqual(revisions.parseRevisions(JSON.stringify({ version: 1, revisions: [sample] })), [sample]);
+assert.throws(() => revisions.parseRevisions(JSON.stringify({ version: 1, revisions: [sample, sample] })));
+assert.throws(() => revisions.parseRevisions(JSON.stringify({ version: 2, revisions: [] })));
