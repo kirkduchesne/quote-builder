@@ -37,3 +37,13 @@ export function parseRevisions(raw: string): Revision[] {
   }
   return value.revisions;
 }
+
+export function snapshotQuote(quote: Draft, id: string, capturedAt: string): Revision {
+  const revision = {
+    id, label: quote.name, capturedAt,
+    quote: { id: quote.id, name: quote.name, reference: quote.reference, notes: quote.notes,
+      discount: quote.discount, items: quote.items.map(item => ({ ...item })) },
+  };
+  if (!validRevision(revision)) throw new Error('Invalid revision snapshot');
+  return revision;
+}

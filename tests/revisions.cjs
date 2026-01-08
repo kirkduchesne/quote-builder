@@ -17,3 +17,9 @@ for (const change of [{ id: '' }, { label: 'a'.repeat(81) }, { quote: { ...sampl
 }
 assert.throws(() => revisions.parseRevisions(JSON.stringify({ version: 1, revisions: Array.from({ length: 41 }, (_, i) => ({ ...sample, id: `r${i}`, quote: newDraft(`q${i}`) })) })));
 assert.throws(() => revisions.parseRevisions(JSON.stringify({ version: 1, revisions: Array.from({ length: 6 }, (_, i) => ({ ...sample, id: `r${i}` })) })));
+
+const original = { ...newDraft('q2'), items: [{ id: 1, description: 'Design', quantity: 2, cents: 501 }] };
+const copy = revisions.snapshotQuote(original, 'r2', sample.capturedAt);
+original.items[0].cents = 800;
+assert.equal(copy.quote.items[0].cents, 501);
+assert.throws(() => revisions.snapshotQuote(original, '', sample.capturedAt));
