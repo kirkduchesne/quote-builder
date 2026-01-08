@@ -9,3 +9,11 @@ console.log('Revision records passed');
 assert.deepEqual(revisions.parseRevisions(JSON.stringify({ version: 1, revisions: [sample] })), [sample]);
 assert.throws(() => revisions.parseRevisions(JSON.stringify({ version: 1, revisions: [sample, sample] })));
 assert.throws(() => revisions.parseRevisions(JSON.stringify({ version: 2, revisions: [] })));
+for (const raw of ['', 'null', '{}', '{', JSON.stringify({ version: 1, revisions: [null] })]) {
+  assert.throws(() => revisions.parseRevisions(raw));
+}
+for (const change of [{ id: '' }, { label: 'a'.repeat(81) }, { quote: { ...sample.quote, discount: 101 } }, { capturedAt: 'yesterday' }]) {
+  assert.throws(() => revisions.parseRevisions(JSON.stringify({ version: 1, revisions: [{ ...sample, ...change }] })));
+}
+assert.throws(() => revisions.parseRevisions(JSON.stringify({ version: 1, revisions: Array.from({ length: 41 }, (_, i) => ({ ...sample, id: `r${i}`, quote: newDraft(`q${i}`) })) })));
+assert.throws(() => revisions.parseRevisions(JSON.stringify({ version: 1, revisions: Array.from({ length: 6 }, (_, i) => ({ ...sample, id: `r${i}` })) })));
