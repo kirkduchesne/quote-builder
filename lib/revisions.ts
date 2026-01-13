@@ -60,3 +60,9 @@ export function sameQuoteContents(left: Draft, right: Draft): boolean {
 export function latestRevision(history: Revision[], sourceId: string): Revision | undefined {
   return [...history].reverse().find(revision => revision.quote.id === sourceId);
 }
+
+export function retainSourceRevisions(history: Revision[], incoming: Revision): Revision[] {
+  const source = history.filter(revision => revision.quote.id === incoming.quote.id);
+  const removed = new Set(source.slice(0, Math.max(0, source.length - sourceRevisionLimit + 1)).map(revision => revision.id));
+  return [...history.filter(revision => !removed.has(revision.id)), incoming];
+}

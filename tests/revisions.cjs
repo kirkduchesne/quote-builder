@@ -27,3 +27,7 @@ assert.throws(() => revisions.snapshotQuote(original, '', sample.capturedAt));
 assert.equal(revisions.sameQuoteContents(original, copy.quote), false);
 assert.equal(revisions.sameQuoteContents(copy.quote, JSON.parse(JSON.stringify(copy.quote))), true);
 assert.equal(revisions.latestRevision([sample, copy], 'q1'), sample);
+
+const five = Array.from({ length: 5 }, (_, i) => ({ ...sample, id: `keep${i}` }));
+assert.deepEqual(revisions.retainSourceRevisions(five, { ...sample, id: 'latest' }).map(r => r.id), ['keep1', 'keep2', 'keep3', 'keep4', 'latest']);
+assert.equal(five.length, 5);
