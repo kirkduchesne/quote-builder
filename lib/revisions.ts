@@ -47,3 +47,16 @@ export function snapshotQuote(quote: Draft, id: string, capturedAt: string): Rev
   if (!validRevision(revision)) throw new Error('Invalid revision snapshot');
   return revision;
 }
+
+export function sameQuoteContents(left: Draft, right: Draft): boolean {
+  return left.id === right.id && left.name === right.name && left.reference === right.reference &&
+    left.notes === right.notes && left.discount === right.discount && left.items.length === right.items.length &&
+    left.items.every((item, index) => {
+      const other = right.items[index];
+      return item.id === other.id && item.description === other.description &&
+        item.quantity === other.quantity && item.cents === other.cents;
+    });
+}
+export function latestRevision(history: Revision[], sourceId: string): Revision | undefined {
+  return [...history].reverse().find(revision => revision.quote.id === sourceId);
+}

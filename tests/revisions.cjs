@@ -23,3 +23,7 @@ const copy = revisions.snapshotQuote(original, 'r2', sample.capturedAt);
 original.items[0].cents = 800;
 assert.equal(copy.quote.items[0].cents, 501);
 assert.throws(() => revisions.snapshotQuote(original, '', sample.capturedAt));
+
+assert.equal(revisions.sameQuoteContents(original, copy.quote), false);
+assert.equal(revisions.sameQuoteContents(copy.quote, JSON.parse(JSON.stringify(copy.quote))), true);
+assert.equal(revisions.latestRevision([sample, copy], 'q1'), sample);
