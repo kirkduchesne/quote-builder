@@ -66,3 +66,13 @@ export function retainSourceRevisions(history: Revision[], incoming: Revision): 
   const removed = new Set(source.slice(0, Math.max(0, source.length - sourceRevisionLimit + 1)).map(revision => revision.id));
   return [...history.filter(revision => !removed.has(revision.id)), incoming];
 }
+
+export function captureRevision(history: Revision[], quote: Draft, id: string, capturedAt: string): Revision[] {
+  parseRevisions(JSON.stringify({ version: 1, revisions: history }));
+  if (history.some(revision => revision.id === id)) throw new Error('Revision identifier already exists');
+  const previous = latestRevision(history, quote.id);
+  if (previous && sameQuoteContents(previous.quote, quote)) throw new Error('This saved quote already matches its latest revision.');
+  const next = retainSourceRevisions(history, snapshotQuote(quote, id, capturedAt));
+  if (next.length > revisionLimit) throw new Error('Revision history is full. Export or delete a revision before capturing another.');
+  return parseRevisions(JSON.stringify({ version: 1, revisions: next }));
+}

@@ -31,3 +31,8 @@ assert.equal(revisions.latestRevision([sample, copy], 'q1'), sample);
 const five = Array.from({ length: 5 }, (_, i) => ({ ...sample, id: `keep${i}` }));
 assert.deepEqual(revisions.retainSourceRevisions(five, { ...sample, id: 'latest' }).map(r => r.id), ['keep1', 'keep2', 'keep3', 'keep4', 'latest']);
 assert.equal(five.length, 5);
+
+assert.throws(() => revisions.captureRevision([sample], sample.quote, 'other', sample.capturedAt), /already matches/);
+const full = Array.from({ length: 40 }, (_, i) => ({ ...sample, id: `full${i}`, quote: newDraft(`source${i}`) }));
+assert.throws(() => revisions.captureRevision(full, newDraft('new'), 'new', sample.capturedAt), /full/);
+assert.equal(revisions.captureRevision(five, { ...sample.quote, notes: 'changed' }, 'new', sample.capturedAt).length, 5);
