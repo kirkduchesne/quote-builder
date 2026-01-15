@@ -36,3 +36,8 @@ assert.throws(() => revisions.captureRevision([sample], sample.quote, 'other', s
 const full = Array.from({ length: 40 }, (_, i) => ({ ...sample, id: `full${i}`, quote: newDraft(`source${i}`) }));
 assert.throws(() => revisions.captureRevision(full, newDraft('new'), 'new', sample.capturedAt), /full/);
 assert.equal(revisions.captureRevision(five, { ...sample.quote, notes: 'changed' }, 'new', sample.capturedAt).length, 5);
+
+assert.equal(revisions.renameRevision([sample], 'r1', '  First  ')[0].label, 'First');
+assert.equal(sample.label, 'Before discount');
+assert.throws(() => revisions.renameRevision([sample], 'missing', 'Label'));
+assert.throws(() => revisions.renameRevision([sample], 'r1', ' '));

@@ -76,3 +76,10 @@ export function captureRevision(history: Revision[], quote: Draft, id: string, c
   if (next.length > revisionLimit) throw new Error('Revision history is full. Export or delete a revision before capturing another.');
   return parseRevisions(JSON.stringify({ version: 1, revisions: next }));
 }
+
+export function renameRevision(history: Revision[], id: string, value: string): Revision[] {
+  const label = value.trim();
+  if (!history.some(revision => revision.id === id)) throw new Error('Revision no longer exists');
+  if (!label || label.length > 80) throw new Error('Use a revision label of 1–80 characters.');
+  return history.map(revision => revision.id === id ? { ...revision, label } : revision);
+}
