@@ -83,3 +83,8 @@ export function renameRevision(history: Revision[], id: string, value: string): 
   if (!label || label.length > 80) throw new Error('Use a revision label of 1–80 characters.');
   return history.map(revision => revision.id === id ? { ...revision, label } : revision);
 }
+
+export function deleteRevision(history: Revision[], id: string): Revision[] {
+  if (!history.some(revision => revision.id === id)) throw new Error('Revision no longer exists');
+  return history.filter(revision => revision.id !== id);
+}

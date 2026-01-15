@@ -41,3 +41,6 @@ assert.equal(revisions.renameRevision([sample], 'r1', '  First  ')[0].label, 'Fi
 assert.equal(sample.label, 'Before discount');
 assert.throws(() => revisions.renameRevision([sample], 'missing', 'Label'));
 assert.throws(() => revisions.renameRevision([sample], 'r1', ' '));
+
+assert.deepEqual(revisions.deleteRevision([sample], 'r1'), []);
+assert.throws(() => revisions.deleteRevision([], 'r1'));
