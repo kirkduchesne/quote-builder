@@ -6,3 +6,4 @@ require('./operations.cjs');
 require('./backups.cjs');
 require('./draft-storage.cjs');
 require('./revisions.cjs');
+require('./revision-storage.cjs');
