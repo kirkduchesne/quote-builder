@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { RevisionHistory } from '@/components/revision-history';
 import { QuoteForm } from '@/components/quote-form';
 import { Button } from '@/components/ui/button';
 import { newDraft, parseDrafts, validDraft, type Draft } from '@/lib/drafts';
@@ -378,6 +379,7 @@ export function DraftWorkspace() {
       <p role="status" className="mb-4 print:hidden">
         {message}
       </p>
+      <RevisionHistory savedQuote={drafts.find((draft) => draft.id === active.id)} />
       <QuoteForm
         resetVersion={resetVersion}
         initial={active}
