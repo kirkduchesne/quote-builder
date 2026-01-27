@@ -10,6 +10,7 @@ export function RevisionHistory({ savedQuote }: { savedQuote?: Draft }) {
   const [history, setHistory] = useState<Revision[]>([]);
   const [ready, setReady] = useState(false);
   const [readable, setReadable] = useState(true);
+  const [scope, setScope] = useState('all');
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState('');
   const raw = useRef<string | null>(null);
@@ -57,8 +58,12 @@ export function RevisionHistory({ savedQuote }: { savedQuote?: Draft }) {
       <p className="text-sm">Unfinished quote edits are not captured. A sixth capture replaces this quote’s oldest revision.</p>
       {pending && <p role="alert">Revision changes are only in this session. Do not close this page before exporting or restoring a copy.</p>}
       <p role="status">{message}</p>
+      <label htmlFor="revision-scope">Show revisions</label>
+      <select id="revision-scope" value={scope} onChange={event => setScope(event.target.value)} className="my-2 rounded border p-2">
+        <option value="all">All quotes</option><option value="current">Current saved quote</option>
+      </select>
       <ul className="my-3 space-y-3">
-        {history.map(revision => <li key={revision.id} className="rounded border p-3">
+        {history.filter(revision => scope === 'all' || revision.quote.id === savedQuote?.id).map(revision => <li key={revision.id} className="rounded border p-3">
           <h3 className="font-medium">{revision.label}</h3>
           <p className="text-sm">{revision.quote.name} · {new Date(revision.capturedAt).toLocaleString()}</p>
           <p className="text-sm">{revision.quote.items.length} lines · {dollars(calculateTotal(revision.quote.items, revision.quote.discount).total)}</p>
