@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { type Draft } from '@/lib/drafts';
+import { calculateTotal, dollars } from '@/lib/money';
 import { Button } from '@/components/ui/button';
 import { captureRevision, type Revision } from '@/lib/revisions';
 import { loadRevisions, saveRevisions } from '@/lib/revision-storage';
@@ -56,6 +57,13 @@ export function RevisionHistory({ savedQuote }: { savedQuote?: Draft }) {
       <p className="text-sm">Unfinished quote edits are not captured. A sixth capture replaces this quote’s oldest revision.</p>
       {pending && <p role="alert">Revision changes are only in this session. Do not close this page before exporting or restoring a copy.</p>}
       <p role="status">{message}</p>
+      <ul className="my-3 space-y-3">
+        {history.map(revision => <li key={revision.id} className="rounded border p-3">
+          <h3 className="font-medium">{revision.label}</h3>
+          <p className="text-sm">{revision.quote.name} · {new Date(revision.capturedAt).toLocaleString()}</p>
+          <p className="text-sm">{revision.quote.items.length} lines · {dollars(calculateTotal(revision.quote.items, revision.quote.discount).total)}</p>
+        </li>)}
+      </ul>
       {!savedQuote && <p>Save a quote before capturing a revision.</p>}
     </>}
   </details>;
