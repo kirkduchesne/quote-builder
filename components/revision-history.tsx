@@ -2,14 +2,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { type Draft } from '@/lib/drafts';
 import { calculateTotal, dollars } from '@/lib/money';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { captureRevision, type Revision } from '@/lib/revisions';
+import { captureRevision, renameRevision, deleteRevision, type Revision } from '@/lib/revisions';
 import { loadRevisions, saveRevisions } from '@/lib/revision-storage';
 
 export function RevisionHistory({ savedQuote }: { savedQuote?: Draft }) {
   const [history, setHistory] = useState<Revision[]>([]);
   const [ready, setReady] = useState(false);
   const [readable, setReadable] = useState(true);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [label, setLabel] = useState('');
   const [scope, setScope] = useState('all');
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState('');
@@ -23,11 +26,11 @@ export function RevisionHistory({ savedQuote }: { savedQuote?: Draft }) {
   }, []);
   useEffect(() => {
     function warn(event: BeforeUnloadEvent) {
-      if (pending) { event.preventDefault(); event.returnValue = ''; }
+      if (pending || editing !== null) { event.preventDefault(); event.returnValue = ''; }
     }
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
-  }, [pending]);
+  }, [pending, editing]);
   function persist(next: Revision[], success: string) {
     setHistory(next);
     try {
@@ -64,6 +67,19 @@ export function RevisionHistory({ savedQuote }: { savedQuote?: Draft }) {
       </select>
       <ul className="my-3 space-y-3">
         {history.filter(revision => scope === 'all' || revision.quote.id === savedQuote?.id).map(revision => <li key={revision.id} className="rounded border p-3">
+          {editing === revision.id ? <form onSubmit={event => {
+            event.preventDefault();
+            try { persist(renameRevision(history, revision.id, label), 'Revision label saved.'); setEditing(null); }
+            catch (error) { setMessage((error as Error).message); }
+          }}>
+            <label htmlFor="revision-label">Revision label</label>
+            <Input id="revision-label" value={label} maxLength={80} required onChange={event => setLabel(event.target.value)} />
+            <Button type="submit">Save revision label</Button>
+            <Button type="button" variant="outline" onClick={() => setEditing(null)}>Cancel revision label</Button>
+          </form> : <Button type="button" variant="outline" onClick={() => {
+            if (editing !== null && !window.confirm('Discard unfinished revision label?')) return;
+            setEditing(revision.id); setLabel(revision.label);
+          }}>Rename revision {revision.label}</Button>}
           <h3 className="font-medium">{revision.label}</h3>
           <p className="text-sm">{revision.quote.name} · {new Date(revision.capturedAt).toLocaleString()}</p>
           <p className="text-sm">{revision.quote.items.length} lines · {dollars(calculateTotal(revision.quote.items, revision.quote.discount).total)}</p>
