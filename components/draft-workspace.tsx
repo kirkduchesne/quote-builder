@@ -379,7 +379,16 @@ export function DraftWorkspace() {
       <p role="status" className="mb-4 print:hidden">
         {message}
       </p>
-      <RevisionHistory savedQuote={drafts.find((draft) => draft.id === active.id)} />
+      <RevisionHistory savedQuote={drafts.find((draft) => draft.id === active.id)} onRestore={(quote) => {
+        if (!canLeave()) return;
+        try {
+          const copy = duplicateDraft(draftsRef.current, quote);
+          setResetVersion(value => value + 1);
+          save(copy);
+          setSearch('');
+          requestAnimationFrame(() => document.getElementById('quote-name')?.focus());
+        } catch (error) { setMessage((error as Error).message); }
+      }} />
       <QuoteForm
         resetVersion={resetVersion}
         initial={active}

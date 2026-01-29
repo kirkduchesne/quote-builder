@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { captureRevision, renameRevision, deleteRevision, type Revision } from '@/lib/revisions';
 import { loadRevisions, saveRevisions } from '@/lib/revision-storage';
 
-export function RevisionHistory({ savedQuote }: { savedQuote?: Draft }) {
+export function RevisionHistory({ savedQuote, onRestore }: { savedQuote?: Draft; onRestore: (quote: Draft) => void }) {
   const [history, setHistory] = useState<Revision[]>([]);
   const [ready, setReady] = useState(false);
   const [readable, setReadable] = useState(true);
@@ -85,6 +85,7 @@ export function RevisionHistory({ savedQuote }: { savedQuote?: Draft }) {
               persist(deleteRevision(history, revision.id), 'Revision deleted.');
             }
           }}>Delete revision {revision.label}</Button>
+          <Button type="button" variant="outline" onClick={() => onRestore(revision.quote)}>Restore revision {revision.label} as new quote</Button>
           <h3 className="font-medium">{revision.label}</h3>
           <p className="text-sm">{revision.quote.name} · {new Date(revision.capturedAt).toLocaleString()}</p>
           <p className="text-sm">{revision.quote.items.length} lines · {dollars(calculateTotal(revision.quote.items, revision.quote.discount).total)}</p>
