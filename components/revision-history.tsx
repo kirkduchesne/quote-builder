@@ -80,6 +80,11 @@ export function RevisionHistory({ savedQuote }: { savedQuote?: Draft }) {
             if (editing !== null && !window.confirm('Discard unfinished revision label?')) return;
             setEditing(revision.id); setLabel(revision.label);
           }}>Rename revision {revision.label}</Button>}
+          <Button type="button" variant="ghost" disabled={editing !== null} onClick={() => {
+            if (window.confirm('Delete revision “' + revision.label + '”? This does not delete the saved quote.')) {
+              persist(deleteRevision(history, revision.id), 'Revision deleted.');
+            }
+          }}>Delete revision {revision.label}</Button>
           <h3 className="font-medium">{revision.label}</h3>
           <p className="text-sm">{revision.quote.name} · {new Date(revision.capturedAt).toLocaleString()}</p>
           <p className="text-sm">{revision.quote.items.length} lines · {dollars(calculateTotal(revision.quote.items, revision.quote.discount).total)}</p>
