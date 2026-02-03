@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { type Draft } from '@/lib/drafts';
 import { calculateTotal, dollars } from '@/lib/money';
+import { downloadBackup } from '@/lib/backups';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { captureRevision, renameRevision, deleteRevision, type Revision } from '@/lib/revisions';
@@ -87,6 +88,10 @@ export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuot
           }}>Delete revision {revision.label}</Button>
           <Button type="button" variant="outline" onClick={() => onRestore(revision.quote)}>Restore revision {revision.label} as new quote</Button>
           {!savedIds.includes(revision.quote.id) && <p className="text-sm">Source quote is no longer saved. Restore this revision to recover a new independent draft.</p>}
+          <Button type="button" variant="outline" onClick={() => {
+            try { downloadBackup([revision.quote]); setMessage('Revision exported as a standard quote backup.'); }
+            catch { setMessage('Revision download could not start. Keep this page open and try again.'); }
+          }}>Export revision {revision.label}</Button>
           <h3 className="font-medium">{revision.label}</h3>
           <p className="text-sm">{revision.quote.name} · {new Date(revision.capturedAt).toLocaleString()}</p>
           <p className="text-sm">{revision.quote.items.length} lines · {dollars(calculateTotal(revision.quote.items, revision.quote.discount).total)}</p>
