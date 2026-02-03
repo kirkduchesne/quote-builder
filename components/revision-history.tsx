@@ -17,6 +17,8 @@ export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuot
   const [scope, setScope] = useState('all');
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState('');
+  const captureButton = useRef<HTMLButtonElement>(null);
+  const labelInput = useRef<HTMLInputElement>(null);
   const raw = useRef<string | null>(null);
   useEffect(() => {
     const loaded = loadRevisions(localStorage);
@@ -58,7 +60,7 @@ export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuot
       <p className="my-2 text-sm">Revisions are independent copies of saved quotes. Keep five per quote and forty in this browser.</p>
       {!readable && <p role="alert">Revision storage could not be read. Existing data will remain untouched.</p>}
       {history.length === 0 ? <p>No revisions captured yet.</p> : <p>{history.length} saved revisions.</p>}
-      <Button type="button" variant="outline" disabled={!savedQuote} onClick={capture}>Capture saved quote</Button>
+      <Button type="button" variant="outline" ref={captureButton} disabled={!savedQuote} onClick={capture}>Capture saved quote</Button>
       <p className="text-sm">Unfinished quote edits are not captured. A sixth capture replaces this quote’s oldest revision.</p>
       {pending && <p role="alert">Revision changes are only in this session. Do not close this page before exporting or restoring a copy.</p>}
       <p role="status">{message}</p>
@@ -70,20 +72,20 @@ export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuot
         {history.filter(revision => scope === 'all' || revision.quote.id === savedQuote?.id).map(revision => <li key={revision.id} className="rounded border p-3">
           {editing === revision.id ? <form onSubmit={event => {
             event.preventDefault();
-            try { persist(renameRevision(history, revision.id, label), 'Revision label saved.'); setEditing(null); }
+            try { persist(renameRevision(history, revision.id, label), 'Revision label saved.'); setEditing(null); requestAnimationFrame(() => captureButton.current?.focus()); }
             catch (error) { setMessage((error as Error).message); }
           }}>
             <label htmlFor="revision-label">Revision label</label>
-            <Input id="revision-label" value={label} maxLength={80} required onChange={event => setLabel(event.target.value)} />
+            <Input ref={labelInput} id="revision-label" value={label} maxLength={80} required onChange={event => setLabel(event.target.value)} />
             <Button type="submit">Save revision label</Button>
-            <Button type="button" variant="outline" onClick={() => setEditing(null)}>Cancel revision label</Button>
+            <Button type="button" variant="outline" onClick={() => { setEditing(null); captureButton.current?.focus(); }}>Cancel revision label</Button>
           </form> : <Button type="button" variant="outline" onClick={() => {
             if (editing !== null && !window.confirm('Discard unfinished revision label?')) return;
-            setEditing(revision.id); setLabel(revision.label);
+            setEditing(revision.id); setLabel(revision.label); requestAnimationFrame(() => labelInput.current?.focus());
           }}>Rename revision {revision.label}</Button>}
           <Button type="button" variant="ghost" disabled={editing !== null} onClick={() => {
             if (window.confirm('Delete revision “' + revision.label + '”? This does not delete the saved quote.')) {
-              persist(deleteRevision(history, revision.id), 'Revision deleted.');
+              persist(deleteRevision(history, revision.id), 'Revision deleted.'); requestAnimationFrame(() => captureButton.current?.focus());
             }
           }}>Delete revision {revision.label}</Button>
           <Button type="button" variant="outline" onClick={() => onRestore(revision.quote)}>Restore revision {revision.label} as new quote</Button>
