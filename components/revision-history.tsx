@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { captureRevision, renameRevision, deleteRevision, type Revision } from '@/lib/revisions';
 import { loadRevisions, saveRevisions } from '@/lib/revision-storage';
 
-export function RevisionHistory({ savedQuote, onRestore }: { savedQuote?: Draft; onRestore: (quote: Draft) => void }) {
+export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuote?: Draft; savedIds: string[]; onRestore: (quote: Draft) => void }) {
   const [history, setHistory] = useState<Revision[]>([]);
   const [ready, setReady] = useState(false);
   const [readable, setReadable] = useState(true);
@@ -86,6 +86,7 @@ export function RevisionHistory({ savedQuote, onRestore }: { savedQuote?: Draft;
             }
           }}>Delete revision {revision.label}</Button>
           <Button type="button" variant="outline" onClick={() => onRestore(revision.quote)}>Restore revision {revision.label} as new quote</Button>
+          {!savedIds.includes(revision.quote.id) && <p className="text-sm">Source quote is no longer saved. Restore this revision to recover a new independent draft.</p>}
           <h3 className="font-medium">{revision.label}</h3>
           <p className="text-sm">{revision.quote.name} · {new Date(revision.capturedAt).toLocaleString()}</p>
           <p className="text-sm">{revision.quote.items.length} lines · {dollars(calculateTotal(revision.quote.items, revision.quote.discount).total)}</p>

@@ -379,7 +379,7 @@ export function DraftWorkspace() {
       <p role="status" className="mb-4 print:hidden">
         {message}
       </p>
-      <RevisionHistory savedQuote={drafts.find((draft) => draft.id === active.id)} onRestore={(quote) => {
+      <RevisionHistory savedIds={drafts.map(draft => draft.id)} savedQuote={drafts.find((draft) => draft.id === active.id)} onRestore={(quote) => {
         if (!canLeave()) return;
         try {
           const copy = duplicateDraft(draftsRef.current, quote);
