@@ -1,0 +1,43 @@
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+(async () => {
+  const browser = await chromium.launch({ channel: 'chrome', headless: true });
+  try {
+    const page = await browser.newPage();
+    const errors = [];
+    page.on('pageerror', e => errors.push(e.message));
+    page.on('dialog', d => d.accept());
+    await page.goto(process.env.QUOTE_TEST_URL || 'http://localhost:8604');
+    await page.getByLabel('Quote name', { exact: true }).fill('Sample revision quote');
+    await page.getByLabel('Description', { exact: true }).fill('Original service');
+    await page.getByLabel('Unit price (USD)', { exact: true }).fill('12.35');
+    await page.getByRole('button', { name: 'Add item', exact: true }).click();
+    await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+    await page.getByText('Saved revision history', { exact: true }).click();
+    await page.getByRole('button', { name: 'Capture saved quote', exact: true }).click();
+    await page.getByRole('button', { name: 'Rename revision Sample revision quote', exact: true }).click();
+    await page.getByLabel('Revision label', { exact: true }).fill('Before changes');
+    await page.getByRole('button', { name: 'Save revision label', exact: true }).click();
+    await page.getByLabel('Quote notes').fill('Later notes');
+    await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+    await page.getByRole('button', { name: 'Restore revision Before changes as new quote', exact: true }).click();
+    await page.waitForFunction(() => document.getElementById('notes').value === '');
+    assert.equal(await page.getByLabel('Quote notes').inputValue(), '');
+    assert.equal(await page.getByLabel('Quote name', { exact: true }).inputValue(), 'Sample revision quote (copy)');
+    await page.getByLabel('Saved drafts', { exact: true }).selectOption({ label: 'Sample revision quote' });
+    await page.getByRole('button', { name: 'Delete draft', exact: true }).click();
+    assert(await page.getByText('Source quote is no longer saved.', { exact: false }).isVisible());
+    const download = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Export revision Before changes', exact: true }).click();
+    assert.equal((await download).suggestedFilename(), 'quote-builder-drafts.json');
+    await page.reload();
+    await page.getByText('Saved revision history', { exact: true }).click();
+    await page.getByRole('button', { name: 'Restore revision Before changes as new quote', exact: true }).click();
+    await page.waitForFunction(() => document.getElementById('notes').value === '');
+    assert.equal(await page.getByLabel('Quote notes').inputValue(), '');
+    await page.getByRole('button', { name: 'Delete revision Before changes', exact: true }).click();
+    assert(await page.getByText('No revisions captured yet.', { exact: true }).isVisible());
+    assert.deepEqual(errors, []);
+    console.log('PASS revision capture, rename, immutable restore, deleted-source recovery, export, reload and deletion');
+  } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });

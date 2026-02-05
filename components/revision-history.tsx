@@ -21,7 +21,7 @@ export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuot
   const labelInput = useRef<HTMLInputElement>(null);
   const raw = useRef<string | null>(null);
   useEffect(() => {
-    const loaded = loadRevisions(localStorage);
+    const loaded = loadRevisions({ getItem: key => localStorage.getItem(key) });
     setHistory(loaded.revisions);
     raw.current = loaded.raw;
     setReadable(loaded.readable);
@@ -60,7 +60,7 @@ export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuot
       <p className="my-2 text-sm">Revisions are independent copies of saved quotes. Keep five per quote and forty in this browser.</p>
       {!readable && <p role="alert">Revision storage could not be read. Existing data will remain untouched.</p>}
       {history.length === 0 ? <p>No revisions captured yet.</p> : <p>{history.length} saved revisions.</p>}
-      <Button type="button" variant="outline" ref={captureButton} disabled={!savedQuote} onClick={capture}>Capture saved quote</Button>
+      <Button type="button" variant="outline" ref={captureButton} disabled={!savedQuote || editing !== null} onClick={capture}>Capture saved quote</Button>
       <p className="text-sm">Unfinished quote edits are not captured. A sixth capture replaces this quote’s oldest revision.</p>
       {pending && <p role="alert">Revision changes are only in this session. Do not close this page before exporting or restoring a copy.</p>}
       <p role="status">{message}</p>
