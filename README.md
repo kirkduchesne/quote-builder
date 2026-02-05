@@ -17,6 +17,7 @@ Open `http://localhost:3000`. For a production build, run `npm run build` follow
 
 ## Features
 
+- Capture saved revisions, rename labels, export individual snapshots, and restore independent drafts, even after deleting the source quote.
 - Create, edit, duplicate, reorder, and remove quote lines with USD prices calculated in integer cents.
 - Apply a whole-number discount from 0–100%; rounding happens once at the discount total.
 - Create up to 30 reusable service templates; search, edit, delete, and insert them into quotes.
@@ -33,6 +34,8 @@ Everything stays in this browser's local storage; there are no accounts, network
 Malformed saved data is left untouched. Failed writes are reported as session-only changes. Conflicting writes from another tab are rejected instead of silently overwriting its data. Keep the page open if saving fails; exporting saved drafts also includes drafts held only in the current session.
 
 Draft backups contain saved quotes, including their lines and notes. They exclude service templates and unfinished edits. Imports require confirmation, accept files up to 5 MB, and enforce the combined 20-draft limit. Template data has no portable backup feature.
+
+Revision history holds five snapshots per source quote and forty overall. Capturing a sixth replaces only that quote’s oldest snapshot; a full shared history requires explicit deletion. Captures use the saved quote, excluding unfinished edits. Revision labels and snapshots stay in a separate local storage collection.
 
 Each quote permits 100 lines, whole quantities from 1–999, and unit prices from $0–$999,999.99. Notes are limited to 1,000 characters. This remains a small estimate worksheet, not an invoicing or accounting system.
 
