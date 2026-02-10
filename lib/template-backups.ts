@@ -6,3 +6,9 @@ export function parseTemplateBackup(raw: string): Template[] {
   if (!value || value.kind !== 'quote-builder-templates' || value.version !== 1) throw new Error('This is not a supported service-template backup.');
   return parseTemplates(JSON.stringify({ version: 1, templates: value.templates }));
 }
+
+export function serializeTemplateBackup(templates: Template[]): string {
+  const raw = JSON.stringify({ kind: 'quote-builder-templates', version: 1, templates }, null, 2);
+  parseTemplateBackup(raw);
+  return raw;
+}

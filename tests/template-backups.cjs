@@ -6,3 +6,6 @@ assert.deepEqual(backups.parseTemplateBackup(envelope([template])), [template]);
 assert.throws(() => backups.parseTemplateBackup(JSON.stringify({ kind: 'quote-builder', version: 1, drafts: [] })));
 assert.throws(() => backups.parseTemplateBackup(envelope([template, template])));
 assert.throws(() => backups.parseTemplateBackup(' '.repeat(512001)));
+
+assert.deepEqual(backups.parseTemplateBackup(backups.serializeTemplateBackup([template])), [template]);
+assert.throws(() => backups.serializeTemplateBackup([{ ...template, cents: -1 }]));
