@@ -7,3 +7,4 @@ require('./backups.cjs');
 require('./draft-storage.cjs');
 require('./revisions.cjs');
 require('./revision-storage.cjs');
+require('./template-backups.cjs');
