@@ -9,3 +9,8 @@ assert.throws(() => backups.parseTemplateBackup(' '.repeat(512001)));
 
 assert.deepEqual(backups.parseTemplateBackup(backups.serializeTemplateBackup([template])), [template]);
 assert.throws(() => backups.serializeTemplateBackup([{ ...template, cents: -1 }]));
+
+const maximum = Array.from({ length: 30 }, (_, i) => ({ id: i + 1, name: '\0'.repeat(80), description: '\0'.repeat(120), quantity: 999, cents: 99999999 }));
+assert.deepEqual(backups.parseTemplateBackup(backups.serializeTemplateBackup(maximum)), maximum);
+assert.throws(() => backups.serializeTemplateBackup([...maximum, { ...template, id: 31 }]));
+assert.deepEqual(backups.parseTemplateBackup(backups.serializeTemplateBackup([{ ...template, name: '😀'.repeat(40) }])), [{ ...template, name: '😀'.repeat(40) }]);
