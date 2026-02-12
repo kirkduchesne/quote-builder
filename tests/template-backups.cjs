@@ -14,3 +14,7 @@ const maximum = Array.from({ length: 30 }, (_, i) => ({ id: i + 1, name: '\0'.re
 assert.deepEqual(backups.parseTemplateBackup(backups.serializeTemplateBackup(maximum)), maximum);
 assert.throws(() => backups.serializeTemplateBackup([...maximum, { ...template, id: 31 }]));
 assert.deepEqual(backups.parseTemplateBackup(backups.serializeTemplateBackup([{ ...template, name: '😀'.repeat(40) }])), [{ ...template, name: '😀'.repeat(40) }]);
+
+const merged = backups.mergeTemplateBackup([template], [template]);
+assert.equal(merged.length, 2); assert.equal(merged[1].id, 2);
+assert.equal(template.id, 1); assert.throws(() => backups.mergeTemplateBackup(maximum, [template]));

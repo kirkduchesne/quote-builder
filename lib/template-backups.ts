@@ -12,3 +12,16 @@ export function serializeTemplateBackup(templates: Template[]): string {
   parseTemplateBackup(raw);
   return raw;
 }
+
+export function mergeTemplateBackup(existing: Template[], incoming: Template[]): Template[] {
+  parseTemplates(JSON.stringify({ version: 1, templates: existing }));
+  parseTemplates(JSON.stringify({ version: 1, templates: incoming }));
+  if (existing.length + incoming.length > 30) throw new Error('Keep at most 30 templates after importing.');
+  const result = existing.map(template => ({ ...template }));
+  for (const template of incoming) {
+    let id = 1;
+    while (result.some(item => item.id === id)) id += 1;
+    result.push({ ...template, id });
+  }
+  return result;
+}
