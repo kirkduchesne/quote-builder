@@ -18,3 +18,7 @@ assert.deepEqual(backups.parseTemplateBackup(backups.serializeTemplateBackup([{ 
 const merged = backups.mergeTemplateBackup([template], [template]);
 assert.equal(merged.length, 2); assert.equal(merged[1].id, 2);
 assert.equal(template.id, 1); assert.throws(() => backups.mergeTemplateBackup(maximum, [template]));
+
+assert.equal(backups.mergeTemplateBackup([template], [template])[1].name, 'Review (import 1)');
+const named = { ...template, name: 'x'.repeat(80) };
+assert.equal(backups.mergeTemplateBackup([named], [named])[1].name.length, 80);

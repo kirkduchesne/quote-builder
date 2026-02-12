@@ -21,7 +21,13 @@ export function mergeTemplateBackup(existing: Template[], incoming: Template[]):
   for (const template of incoming) {
     let id = 1;
     while (result.some(item => item.id === id)) id += 1;
-    result.push({ ...template, id });
+    let name = template.name;
+    let suffix = 1;
+    while (result.some(item => item.name === name)) {
+      const ending = ' (import ' + suffix++ + ')';
+      name = template.name.slice(0, 80 - ending.length) + ending;
+    }
+    result.push({ ...template, id, name });
   }
   return result;
 }
