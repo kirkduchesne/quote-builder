@@ -22,3 +22,9 @@ assert.equal(template.id, 1); assert.throws(() => backups.mergeTemplateBackup(ma
 assert.equal(backups.mergeTemplateBackup([template], [template])[1].name, 'Review (import 1)');
 const named = { ...template, name: 'x'.repeat(80) };
 assert.equal(backups.mergeTemplateBackup([named], [named])[1].name.length, 80);
+
+(async () => {
+  assert.deepEqual(await backups.readTemplateBackupFile({ size: 100, text: async () => envelope([template]) }), [template]);
+  await assert.rejects(() => backups.readTemplateBackupFile({ size: 512001, text: () => assert.fail('Read oversized file') }));
+  await assert.rejects(() => backups.readTemplateBackupFile({ size: 1, text: async () => '{' }), /could not be read/);
+})();

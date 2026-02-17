@@ -31,3 +31,9 @@ export function mergeTemplateBackup(existing: Template[], incoming: Template[]):
   }
   return result;
 }
+
+export async function readTemplateBackupFile(file: Pick<File, 'size' | 'text'>): Promise<Template[]> {
+  if (file.size > templateBackupBytes) throw new Error('Choose a template backup no larger than 512 KB.');
+  try { return parseTemplateBackup(await file.text()); }
+  catch (error) { throw new Error('Template backup could not be read: ' + (error as Error).message); }
+}
