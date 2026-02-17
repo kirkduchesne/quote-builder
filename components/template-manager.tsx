@@ -10,6 +10,7 @@ import {
   searchTemplates,
   type Template,
 } from '@/lib/templates';
+import { downloadTemplateBackup, readTemplateBackupFile, mergeTemplateBackup } from '@/lib/template-backups';
 import { loadTemplates, saveTemplates } from '@/lib/template-storage';
 export function TemplateManager({
   onInsert,
@@ -111,6 +112,13 @@ export function TemplateManager({
         >
           Reusable service templates
         </summary>
+        <details className="my-3">
+          <summary className="cursor-pointer font-medium">Import or export service templates</summary>
+          <Button type="button" variant="outline" disabled={!ready} onClick={() => {
+            try { downloadTemplateBackup(templates); setMessage('Saved service templates exported. Unfinished edits are excluded.'); }
+            catch { setMessage('Template download could not start. Keep this page open and try again.'); }
+          }}>Export service templates</Button>
+        </details>
         <form onSubmit={submit} className="mt-3 grid gap-3 sm:grid-cols-2">
           <div>
             <label htmlFor="template-name">Template name</label>
