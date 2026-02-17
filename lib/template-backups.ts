@@ -37,3 +37,15 @@ export async function readTemplateBackupFile(file: Pick<File, 'size' | 'text'>):
   try { return parseTemplateBackup(await file.text()); }
   catch (error) { throw new Error('Template backup could not be read: ' + (error as Error).message); }
 }
+
+export function downloadTemplateBackup(templates: Template[]): void {
+  const url = URL.createObjectURL(new Blob([serializeTemplateBackup(templates)], { type: 'application/json' }));
+  try {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'quote-builder-templates.json';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } finally { setTimeout(() => URL.revokeObjectURL(url), 1000); }
+}
