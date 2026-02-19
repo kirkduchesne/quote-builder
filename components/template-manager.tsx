@@ -18,6 +18,9 @@ export function TemplateManager({
   onInsert: (template: Template) => void;
 }) {
   const [templates, setTemplates] = useState<Template[]>([]);
+  const templatesRef = useRef<Template[]>([]);
+  const importBusy = useRef(false);
+  const [importing, setImporting] = useState(false);
   const [ready, setReady] = useState(false);
   const [message, setMessage] = useState('');
   const nameInput = useRef<HTMLInputElement>(null);
@@ -27,6 +30,7 @@ export function TemplateManager({
     const loaded = loadTemplates({
       getItem: (key) => localStorage.getItem(key),
     });
+    templatesRef.current = loaded.templates;
     setTemplates(loaded.templates);
     raw.current = loaded.raw;
     readable.current = loaded.readable;
@@ -61,6 +65,7 @@ export function TemplateManager({
     return () => window.removeEventListener('beforeunload', warn);
   }, [pending, name, description, price, quantity, editing]);
   function persist(next: Template[]) {
+    templatesRef.current = next;
     setTemplates(next);
     try {
       if (!readable.current)
@@ -72,6 +77,19 @@ export function TemplateManager({
       setPending(true);
       setMessage((error as Error).message + ' Changes are session-only.');
     }
+  }
+  async function importFile(file: File) {
+    if (importBusy.current) return;
+    importBusy.current = true;
+    setImporting(true);
+    try {
+      const incoming = await readTemplateBackupFile(file);
+      if (incoming.length === 0) { setMessage('The template backup is empty. Nothing changed.'); return; }
+      const merged = mergeTemplateBackup(templatesRef.current, incoming);
+      if (!window.confirm('Import ' + incoming.length + ' service templates? Existing templates and unfinished edits are kept.')) return;
+      persist(merged);
+    } catch (error) { setMessage((error as Error).message); }
+    finally { importBusy.current = false; setImporting(false); }
   }
   function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -118,6 +136,12 @@ export function TemplateManager({
             try { downloadTemplateBackup(templates); setMessage('Saved service templates exported. Unfinished edits are excluded.'); }
             catch { setMessage('Template download could not start. Keep this page open and try again.'); }
           }}>Export service templates</Button>
+          <label htmlFor="template-backup" className="mt-3">Import service-template backup</label>
+          <input id="template-backup" type="file" accept=".json,application/json" disabled={!ready || importing} onChange={event => {
+            const file = event.target.files?.[0]; event.target.value = '';
+            if (file) void importFile(file);
+          }} />
+          {importing && <p role="status">Reading service-template backup…</p>}
         </details>
         <form onSubmit={submit} className="mt-3 grid gap-3 sm:grid-cols-2">
           <div>
