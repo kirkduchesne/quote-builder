@@ -143,6 +143,7 @@ export function TemplateManager({
           }} />
           {importing && <p role="status">Reading service-template backup…</p>}
         </details>
+        {importing && (name || description || price || quantity !== '1' || editing !== null) && <p className="text-sm">Your unfinished template stays open during import. Save it separately when ready.</p>}
         <form onSubmit={submit} className="mt-3 grid gap-3 sm:grid-cols-2">
           <div>
             <label htmlFor="template-name">Template name</label>
