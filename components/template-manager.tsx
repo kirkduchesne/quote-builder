@@ -205,6 +205,7 @@ export function TemplateManager({
             </Button>
           ) : null}
         </form>
+        {pending && <p className="rounded border border-amber-700 p-3">Template changes are session-only. Export service templates before closing; unfinished form edits must be saved first.</p>}
         <p role="status">{ready ? message : 'Loading templates…'}</p>
         <label htmlFor="template-search">Find a service template</label>
         <Input
