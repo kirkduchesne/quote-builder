@@ -34,6 +34,22 @@ const assert = require('node:assert/strict');
     const download = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Export service templates', exact: true }).click();
     assert.equal((await download).suggestedFilename(), 'quote-builder-templates.json');
+    await page.evaluate(() => {
+      const original = File.prototype.text;
+      File.prototype.text = function () {
+        return new Promise(resolve => { window.releaseTemplateRead = () => original.call(this).then(resolve); });
+      };
+    });
+    await upload(backup);
+    assert.equal(await page.getByLabel('Import service-template backup', { exact: true }).isDisabled(), true);
+    await page.getByLabel('Template description', { exact: true }).fill('Saved during import');
+    await page.getByLabel('Template unit price (USD)', { exact: true }).fill('10');
+    await page.getByRole('button', { name: 'Save template', exact: true }).click();
+    await page.evaluate(() => window.releaseTemplateRead());
+    await page.getByRole('button', { name: 'Use template Sample review (import 2)', exact: true }).waitFor();
+    const after = await page.evaluate(() => JSON.parse(localStorage.getItem('quote-builder-templates-v1')).templates);
+    assert.equal(after.length, 4);
+    assert(after.some(t => t.name === 'Unfinished'));
     assert.deepEqual(errors, []);
     console.log('PASS template backup cancellation and rejected formats');
   } finally { await browser.close(); }
