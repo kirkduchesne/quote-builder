@@ -22,6 +22,18 @@ const assert = require('node:assert/strict');
     await upload(JSON.stringify({ kind: 'quote-builder', version: 1, drafts: [] }));
     await page.getByText('This is not a supported service-template backup.', { exact: false }).waitFor();
     assert.equal(await page.evaluate(() => localStorage.getItem('quote-builder-templates-v1')), null);
+    accept = true;
+    await upload(backup);
+    await page.getByRole('button', { name: 'Use template Sample review', exact: true }).waitFor();
+    await page.getByLabel('Template name', { exact: true }).fill('Unfinished');
+    await upload(backup);
+    await page.getByRole('button', { name: 'Use template Sample review (import 1)', exact: true }).waitFor();
+    assert.equal(await page.getByLabel('Template name', { exact: true }).inputValue(), 'Unfinished');
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('quote-builder-templates-v1')).templates);
+    assert.equal(new Set(stored.map(t => t.id)).size, 2);
+    const download = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Export service templates', exact: true }).click();
+    assert.equal((await download).suggestedFilename(), 'quote-builder-templates.json');
     assert.deepEqual(errors, []);
     console.log('PASS template backup cancellation and rejected formats');
   } finally { await browser.close(); }
