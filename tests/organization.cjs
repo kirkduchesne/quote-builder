@@ -8,3 +8,8 @@ assert.equal(organization.validOrganization({ archivedIds: Array.from({ length: 
 
 assert.deepEqual(organization.parseOrganization('{"version":1,"archivedIds":["one"]}'), { archivedIds: ['one'] });
 for (const raw of ['', 'null', '{"version":2,"archivedIds":[]}', '{"version":1,"archivedIds":[null]}']) assert.throws(() => organization.parseOrganization(raw));
+
+const original = { archivedIds: ['one'] };
+assert.deepEqual(organization.setArchived(original, 'two', true), { archivedIds: ['one', 'two'] });
+assert.deepEqual(organization.setArchived(original, 'one', false), { archivedIds: [] });
+assert.deepEqual(original, { archivedIds: ['one'] });

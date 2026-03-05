@@ -11,3 +11,11 @@ export function parseOrganization(raw: string): Organization {
   if (!value || value.version !== 1 || !validOrganization(value)) throw new Error('Invalid draft organization data');
   return { archivedIds: [...value.archivedIds] };
 }
+
+export function setArchived(organization: Organization, id: string, archived: boolean): Organization {
+  const archivedIds = organization.archivedIds.filter(value => value !== id);
+  if (archived) archivedIds.push(id);
+  const next = { archivedIds };
+  if (!validOrganization(next)) throw new Error('Keep at most 20 archived draft references.');
+  return next;
+}
