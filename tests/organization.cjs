@@ -13,3 +13,8 @@ const original = { archivedIds: ['one'] };
 assert.deepEqual(organization.setArchived(original, 'two', true), { archivedIds: ['one', 'two'] });
 assert.deepEqual(organization.setArchived(original, 'one', false), { archivedIds: [] });
 assert.deepEqual(original, { archivedIds: ['one'] });
+
+const drafts = [newDraft('one'), newDraft('two')];
+assert.deepEqual(organization.visibleDrafts(drafts, original, 'active').map(d => d.id), ['two']);
+assert.deepEqual(organization.visibleDrafts(drafts, original, 'archived').map(d => d.id), ['one']);
+assert.equal(organization.visibleDrafts(drafts, original, 'all').length, 2);

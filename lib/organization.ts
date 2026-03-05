@@ -19,3 +19,7 @@ export function setArchived(organization: Organization, id: string, archived: bo
   if (!validOrganization(next)) throw new Error('Keep at most 20 archived draft references.');
   return next;
 }
+
+export function visibleDrafts(drafts: Draft[], organization: Organization, scope: string): Draft[] {
+  return drafts.filter(draft => scope === 'all' || organization.archivedIds.includes(draft.id) === (scope === 'archived'));
+}
