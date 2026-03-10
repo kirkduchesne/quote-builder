@@ -1,4 +1,5 @@
 'use client';
+import { useOrganization } from '@/components/use-organization';
 import { useEffect, useRef, useState } from 'react';
 import { RevisionHistory } from '@/components/revision-history';
 import { QuoteForm } from '@/components/quote-form';
@@ -19,6 +20,7 @@ import {
 import { writeDrafts } from '@/lib/draft-storage';
 const storageKey = 'quote-builder-drafts-v1';
 export function DraftWorkspace() {
+  const organizationState = useOrganization();
   const savedRaw = useRef<string | null>(null);
   const [search, setSearch] = useState('');
   const [order, setOrder] = useState('added');
@@ -314,6 +316,13 @@ export function DraftWorkspace() {
         >
           Delete draft
         </Button>
+      </div>
+      <div className="my-3 print:hidden">
+        <Button type="button" variant="outline" disabled={!organizationState.ready || !drafts.some(draft => draft.id === active.id)} onClick={() => {
+          organizationState.archive(active.id, !organizationState.organization.archivedIds.includes(active.id));
+        }}>{organizationState.organization.archivedIds.includes(active.id) ? 'Unarchive current draft' : 'Archive current draft'}</Button>
+        <p className="text-sm">Archiving organizes saved drafts without changing quote contents or unfinished edits.</p>
+        <p role="status">{organizationState.message}</p>
       </div>
       <details className="my-4 print:hidden">
         <summary className="cursor-pointer font-medium">
