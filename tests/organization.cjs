@@ -18,3 +18,10 @@ const drafts = [newDraft('one'), newDraft('two')];
 assert.deepEqual(organization.visibleDrafts(drafts, original, 'active').map(d => d.id), ['two']);
 assert.deepEqual(organization.visibleDrafts(drafts, original, 'archived').map(d => d.id), ['one']);
 assert.equal(organization.visibleDrafts(drafts, original, 'all').length, 2);
+
+const { searchDrafts, orderDrafts } = require('../.test-build/quote-operations');
+const named = [{ ...newDraft('one'), name: 'Zeta' }, { ...newDraft('two'), name: 'Alpha' }];
+assert.deepEqual(orderDrafts(organization.visibleDrafts(named, original, 'all'), 'name').map(d => d.name), ['Alpha', 'Zeta']);
+assert.equal(searchDrafts(organization.visibleDrafts(named, original, 'active'), 'Zeta').length, 0);
+assert.equal(searchDrafts(organization.visibleDrafts(named, original, 'archived'), 'Zeta').length, 1);
+assert.equal(named[0].name, 'Zeta');
