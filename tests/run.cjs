@@ -9,3 +9,4 @@ require('./revisions.cjs');
 require('./revision-storage.cjs');
 require('./template-backups.cjs');
 require('./organization.cjs');
+require('./organization-storage.cjs');
