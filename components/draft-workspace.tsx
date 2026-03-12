@@ -329,6 +329,7 @@ export function DraftWorkspace() {
         <Button type="button" variant="outline" disabled={!organizationState.ready || !drafts.some(draft => draft.id === active.id)} onClick={() => {
           organizationState.archive(active.id, !organizationState.organization.archivedIds.includes(active.id));
         }}>{organizationState.organization.archivedIds.includes(active.id) ? 'Unarchive current draft' : 'Archive current draft'}</Button>
+        {organizationState.organization.archivedIds.includes(active.id) && <p className="my-2 font-medium">Current draft is archived. It remains editable and printable.</p>}
         <p className="text-sm">Archiving organizes saved drafts without changing quote contents or unfinished edits.</p>
         <p role="status">{organizationState.message}</p>
       </div>
