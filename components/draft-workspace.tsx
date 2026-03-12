@@ -1,4 +1,5 @@
 'use client';
+import { visibleDrafts } from '@/lib/organization';
 import { useOrganization } from '@/components/use-organization';
 import { useEffect, useRef, useState } from 'react';
 import { RevisionHistory } from '@/components/revision-history';
@@ -22,6 +23,7 @@ const storageKey = 'quote-builder-drafts-v1';
 export function DraftWorkspace() {
   const organizationState = useOrganization();
   const savedRaw = useRef<string | null>(null);
+  const [archiveScope, setArchiveScope] = useState('active');
   const [search, setSearch] = useState('');
   const [order, setOrder] = useState('added');
   const importBusy = useRef(false);
@@ -224,6 +226,12 @@ export function DraftWorkspace() {
   if (!active) return <p role="status">Loading saved drafts…</p>;
   return (
     <>
+      <div className="mb-3 print:hidden">
+        <label htmlFor="archive-scope">Draft visibility</label>
+        <select id="archive-scope" className="rounded border p-2" value={archiveScope} onChange={event => setArchiveScope(event.target.value)}>
+          <option value="active">Active drafts</option><option value="archived">Archived drafts</option><option value="all">All drafts</option>
+        </select>
+      </div>
       <div className="mb-4 grid gap-3 sm:grid-cols-2 print:hidden">
         <div>
           <label htmlFor="draft-search">Find saved drafts</label>
@@ -268,7 +276,7 @@ export function DraftWorkspace() {
             {orderDrafts(
               drafts.filter(
                 (d) =>
-                  d.id === active.id || searchDrafts([d], search).length > 0
+                  d.id === active.id || (visibleDrafts([d], organizationState.organization, archiveScope).length > 0 && searchDrafts([d], search).length > 0)
               ),
               order
             ).map((d) => (
@@ -370,7 +378,7 @@ export function DraftWorkspace() {
         </p>
       ) : null}
       <p className="print:hidden">
-        {searchDrafts(drafts, search).length} saved drafts match. The current
+        {searchDrafts(visibleDrafts(drafts, organizationState.organization, archiveScope), search).length} saved drafts match this view. The current
         quote remains available.
       </p>
       {importing ? (
