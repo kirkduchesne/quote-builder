@@ -199,6 +199,8 @@ export function DraftWorkspace() {
     const remaining = drafts.filter((d) => d.id !== active.id);
     setResetVersion((value) => value + 1);
     updateCollection(remaining);
+    const retainedIds = organizationState.organization.archivedIds.filter(id => remaining.some(draft => draft.id === id));
+    if (retainedIds.length !== organizationState.organization.archivedIds.length) organizationState.persist({ archivedIds: retainedIds });
     setActive(remaining[0] || newDraft(String(Date.now())));
     requestAnimationFrame(() => document.getElementById('quote-name')?.focus());
     setDirty(false);
