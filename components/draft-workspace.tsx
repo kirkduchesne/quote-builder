@@ -341,6 +341,7 @@ export function DraftWorkspace() {
           Import or export quote backups
         </summary>
         <div className="mt-3">
+          <p className="text-sm">Exports include all saved drafts, including archived quotes. Archive flags stay in this browser and are not included.</p>
           <Button
             type="button"
             variant="outline"
