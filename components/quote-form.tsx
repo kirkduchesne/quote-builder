@@ -321,7 +321,7 @@ export function QuoteForm({
               aria-label={'Edit ' + item.description}
               onClick={() => {
                 if (
-                  (description || price) &&
+                  (description || price || quantity !== '1' || editing !== null) &&
                   !window.confirm('Discard the unfinished line item?')
                 )
                   return;
