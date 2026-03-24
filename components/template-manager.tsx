@@ -213,6 +213,7 @@ export function TemplateManager({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <p className="text-sm">{30 - templates.length} service template spaces remaining.</p>
         <p>{searchTemplates(templates, search).length} matching templates</p>
         <ul>
           {searchTemplates(templates, search).map((template) => (

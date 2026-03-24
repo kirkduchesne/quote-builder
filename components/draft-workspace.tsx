@@ -229,6 +229,7 @@ export function DraftWorkspace() {
   if (!active) return <p role="status">Loading saved drafts…</p>;
   return (
     <>
+      <p className="mb-2 text-sm print:hidden">{20 - drafts.length} saved draft spaces remaining.</p>
       <div className="mb-3 print:hidden">
         <label htmlFor="archive-scope">Draft visibility</label>
         <select id="archive-scope" className="rounded border p-2" value={archiveScope} onChange={event => setArchiveScope(event.target.value)}>
