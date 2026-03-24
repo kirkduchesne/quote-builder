@@ -1,4 +1,5 @@
 'use client';
+import { calculateTotal, dollars } from '@/lib/money';
 import { visibleDrafts } from '@/lib/organization';
 import { useOrganization } from '@/components/use-organization';
 import { useEffect, useRef, useState } from 'react';
@@ -403,6 +404,7 @@ export function DraftWorkspace() {
       <p role="status" className="mb-4 print:hidden">
         {message}
       </p>
+      {drafts.some(draft => draft.id === active.id) && <p className="mb-3 text-sm print:hidden">Saved version: {active.items.length} line items · {dollars(calculateTotal(active.items, active.discount).total)}. Unsaved form edits may differ.</p>}
       <RevisionHistory savedIds={drafts.map(draft => draft.id)} savedQuote={drafts.find((draft) => draft.id === active.id)} onRestore={(quote) => {
         if (!canLeave()) return;
         try {
