@@ -103,8 +103,7 @@ export function DraftWorkspace() {
               ? 'Import drafts and discard unsaved quote changes? Saved drafts are kept. Cancel to save your edits first.'
               : 'Import saved drafts? Your existing saved drafts will be kept.')
         )
-      )
-        return;
+      ) { setMessage('Quote import cancelled. Saved drafts and unfinished edits are unchanged.'); return; }
       setResetVersion((value) => value + 1);
       updateCollection(merged);
       setActive(

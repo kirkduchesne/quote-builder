@@ -86,7 +86,7 @@ export function TemplateManager({
       const incoming = await readTemplateBackupFile(file);
       if (incoming.length === 0) { setMessage('The template backup is empty. Nothing changed.'); return; }
       const merged = mergeTemplateBackup(templatesRef.current, incoming);
-      if (!window.confirm('Import ' + incoming.length + ' service templates (' + (30 - merged.length) + ' spaces remain afterward)? Existing templates and unfinished edits are kept.')) return;
+      if (!window.confirm('Import ' + incoming.length + ' service templates (' + (30 - merged.length) + ' spaces remain afterward)? Existing templates and unfinished edits are kept.')) { setMessage('Template import cancelled. Templates and unfinished edits are unchanged.'); return; }
       persist(merged);
     } catch (error) { setMessage((error as Error).message); }
     finally { importBusy.current = false; setImporting(false); }
