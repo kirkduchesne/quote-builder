@@ -68,6 +68,7 @@ export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuot
       <select id="revision-scope" value={scope} onChange={event => setScope(event.target.value)} className="my-2 rounded border p-2">
         <option value="all">All quotes</option><option value="current">Current saved quote</option>
       </select>
+      {history.length > 0 && scope === 'current' && !history.some(revision => revision.quote.id === savedQuote?.id) && <p>No revisions match this saved quote. Choose All quotes to see other history.</p>}
       <ul className="my-3 space-y-3">
         {history.filter(revision => scope === 'all' || revision.quote.id === savedQuote?.id).map(revision => <li key={revision.id} className="rounded border p-3">
           {editing === revision.id ? <form onSubmit={event => {
