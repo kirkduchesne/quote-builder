@@ -44,3 +44,7 @@ assert.throws(() => revisions.renameRevision([sample], 'r1', ' '));
 
 assert.deepEqual(revisions.deleteRevision([sample], 'r1'), []);
 assert.throws(() => revisions.deleteRevision([], 'r1'));
+
+const recovered = revisions.restoredDraft({ ...copy.quote, id: 'restored-1' }, [], ['restored-1', 'restored-2']);
+assert.equal(recovered.id, 'restored-3');
+assert.notEqual(recovered.items[0], copy.quote.items[0]);

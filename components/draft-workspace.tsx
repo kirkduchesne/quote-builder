@@ -1,4 +1,5 @@
 'use client';
+import { restoredDraft } from '@/lib/revisions';
 import { calculateTotal, dollars } from '@/lib/money';
 import { visibleDrafts } from '@/lib/organization';
 import { useOrganization } from '@/components/use-organization';
@@ -405,10 +406,10 @@ export function DraftWorkspace() {
         {message}
       </p>
       {drafts.some(draft => draft.id === active.id) && <p className="mb-3 text-sm print:hidden">Saved version: {active.items.length} line items · {dollars(calculateTotal(active.items, active.discount).total)}. Unsaved form edits may differ.</p>}
-      <RevisionHistory savedIds={drafts.map(draft => draft.id)} savedQuote={drafts.find((draft) => draft.id === active.id)} onRestore={(quote) => {
+      <RevisionHistory savedIds={drafts.map(draft => draft.id)} savedQuote={drafts.find((draft) => draft.id === active.id)} onRestore={(quote, reservedIds) => {
         if (!canLeave()) return;
         try {
-          const copy = duplicateDraft(draftsRef.current, quote);
+          const copy = restoredDraft(quote, draftsRef.current, reservedIds);
           setResetVersion(value => value + 1);
           save(copy);
           setSearch('');

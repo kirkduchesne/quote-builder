@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { captureRevision, renameRevision, deleteRevision, type Revision } from '@/lib/revisions';
 import { loadRevisions, saveRevisions } from '@/lib/revision-storage';
 
-export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuote?: Draft; savedIds: string[]; onRestore: (quote: Draft) => void }) {
+export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuote?: Draft; savedIds: string[]; onRestore: (quote: Draft, reservedIds: string[]) => void }) {
   const [history, setHistory] = useState<Revision[]>([]);
   const [ready, setReady] = useState(false);
   const [readable, setReadable] = useState(true);
@@ -89,7 +89,7 @@ export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuot
               persist(deleteRevision(history, revision.id), 'Revision deleted.'); requestAnimationFrame(() => captureButton.current?.focus());
             }
           }}>Delete revision {revision.label}</Button>
-          <Button type="button" variant="outline" onClick={() => onRestore(revision.quote)}>Restore revision {revision.label} as new quote</Button>
+          <Button type="button" variant="outline" onClick={() => onRestore(revision.quote, history.map(item => item.quote.id))}>Restore revision {revision.label} as new quote</Button>
           {!savedIds.includes(revision.quote.id) && <p className="text-sm">Source quote is no longer saved. Restore this revision to recover a new independent draft.</p>}
           <Button type="button" variant="outline" onClick={() => {
             try { downloadBackup([revision.quote]); setMessage('Revision exported as a standard quote backup.'); }

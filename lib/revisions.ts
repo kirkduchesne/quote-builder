@@ -88,3 +88,11 @@ export function deleteRevision(history: Revision[], id: string): Revision[] {
   if (!history.some(revision => revision.id === id)) throw new Error('Revision no longer exists');
   return history.filter(revision => revision.id !== id);
 }
+
+export function restoredDraft(quote: Draft, saved: Draft[], historySourceIds: string[]): Draft {
+  if (!validDraft(quote) || saved.length >= 20) throw new Error('Keep at most 20 saved drafts before restoring.');
+  let suffix = 1;
+  const reserved = new Set([...saved.map(draft => draft.id), ...historySourceIds, quote.id]);
+  while (reserved.has('restored-' + suffix)) suffix += 1;
+  return { ...quote, id: 'restored-' + suffix, name: quote.name.slice(0, 73) + ' (copy)', items: quote.items.map(item => ({ ...item })) };
+}

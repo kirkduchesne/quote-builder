@@ -37,6 +37,15 @@ const assert = require('node:assert/strict');
     assert.equal(await page.getByLabel('Quote notes').inputValue(), '');
     await page.getByRole('button', { name: 'Delete revision Before changes', exact: true }).click();
     assert(await page.getByText('No revisions captured yet.', { exact: true }).isVisible());
+    await page.getByRole('button', { name: 'Capture saved quote', exact: true }).focus();
+    await page.keyboard.press('Enter');
+    const restore = page.getByRole('button', { name: /Restore revision .* as new quote/ }).first();
+    await restore.focus();
+    await page.keyboard.press('Enter');
+    await page.waitForFunction(() => document.activeElement.id === 'quote-name');
+    const sources = await page.evaluate(() => JSON.parse(localStorage.getItem('quote-builder-revisions-v1')).revisions.map(r => r.quote.id));
+    const selected = await page.getByLabel('Saved drafts', { exact: true }).inputValue();
+    assert(!sources.includes(selected));
     assert.deepEqual(errors, []);
     console.log('PASS revision capture, rename, immutable restore, deleted-source recovery, export, reload and deletion');
   } finally { await browser.close(); }
