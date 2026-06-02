@@ -148,6 +148,7 @@ export function QuoteForm({
           />
         </div>
       </div>
+      <p className="hidden text-sm uppercase tracking-wide print:block">Service estimate</p>
       <h2 className="hidden break-words text-2xl print:block">{name}</h2>
       {reference ? (
         <p className="hidden break-words print:block">
