@@ -269,8 +269,8 @@ export function QuoteForm({
           >
             <span className="min-w-0 break-all">
               <span className="mr-2 text-sm">{index + 1}.</span>
-              {item.description} · {item.quantity} × {dollars(item.cents)} ={' '}
-              {dollars(item.quantity * item.cents)}
+              {item.description} · <span className="sr-only print:not-sr-only">Quantity: </span>{item.quantity} × <span className="sr-only print:not-sr-only">Unit price: </span>{dollars(item.cents)} ={' '}
+              <span className="sr-only print:not-sr-only">Line total: </span>{dollars(item.quantity * item.cents)}
             </span>{' '}
             <Button
               type="button"
