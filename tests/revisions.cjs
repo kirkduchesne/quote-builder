@@ -48,3 +48,11 @@ assert.throws(() => revisions.deleteRevision([], 'r1'));
 const recovered = revisions.restoredDraft({ ...copy.quote, id: 'restored-1' }, [], ['restored-1', 'restored-2']);
 assert.equal(recovered.id, 'restored-3');
 assert.notEqual(recovered.items[0], copy.quote.items[0]);
+
+const { calculateTotal } = require('../.test-build/money');
+for (const discount of [0, 1, 50, 99, 100]) {
+  const quote = { ...newDraft('money'), discount, items: [{ id: 1, description: 'Boundary', quantity: 999, cents: 99999999 }, { id: 2, description: 'Rounding', quantity: 1, cents: 1 }] };
+  const captured = revisions.snapshotQuote(quote, 'money', sample.capturedAt);
+  const parsed = revisions.parseRevisions(JSON.stringify({ version: 1, revisions: [captured] }))[0];
+  assert.deepEqual(calculateTotal(parsed.quote.items, parsed.quote.discount), calculateTotal(quote.items, quote.discount));
+}
