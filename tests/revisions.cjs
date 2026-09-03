@@ -56,3 +56,11 @@ for (const discount of [0, 1, 50, 99, 100]) {
   const parsed = revisions.parseRevisions(JSON.stringify({ version: 1, revisions: [captured] }))[0];
   assert.deepEqual(calculateTotal(parsed.quote.items, parsed.quote.discount), calculateTotal(quote.items, quote.discount));
 }
+
+const restored = revisions.restoredDraft(copy.quote, [], [copy.quote.id]);
+restored.items[0].description = 'Changed restored copy'; restored.notes = 'New notes';
+assert.equal(copy.quote.items[0].description, 'Design'); assert.equal(copy.quote.notes, '');
+assert.throws(() => revisions.restoredDraft(copy.quote, Array.from({ length: 20 }, (_, i) => newDraft(String(i))), []));
+const recaptured = revisions.captureRevision([copy], restored, 'restored-snapshot', sample.capturedAt);
+assert.equal(recaptured[0].quote.items[0].description, 'Design');
+assert.equal(recaptured[1].quote.items[0].description, 'Changed restored copy');
