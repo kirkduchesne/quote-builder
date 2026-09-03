@@ -64,3 +64,14 @@ assert.throws(() => revisions.restoredDraft(copy.quote, Array.from({ length: 20 
 const recaptured = revisions.captureRevision([copy], restored, 'restored-snapshot', sample.capturedAt);
 assert.equal(recaptured[0].quote.items[0].description, 'Design');
 assert.equal(recaptured[1].quote.items[0].description, 'Changed restored copy');
+
+let history = [];
+for (let source = 0; source < 8; source++) {
+  for (let version = 0; version < 5; version++) history = revisions.captureRevision(history, { ...newDraft('source' + source), notes: String(version) }, `group${source}-${version}`, sample.capturedAt);
+}
+assert.equal(history.length, 40);
+const next = revisions.captureRevision(history, { ...newDraft('source0'), notes: 'newest' }, 'replacement', sample.capturedAt);
+assert.equal(next.length, 40); assert(!next.some(r => r.id === 'group0-0'));
+assert.equal(next.filter(r => r.quote.id === 'source1').length, 5);
+assert.throws(() => revisions.captureRevision(history, newDraft('source9'), 'overflow', sample.capturedAt));
+assert.equal(history[0].id, 'group0-0');
