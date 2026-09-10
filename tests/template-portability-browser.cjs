@@ -50,6 +50,24 @@ const assert = require('node:assert/strict');
     const after = await page.evaluate(() => JSON.parse(localStorage.getItem('quote-builder-templates-v1')).templates);
     assert.equal(after.length, 4);
     assert(after.some(t => t.name === 'Unfinished'));
+    const blocked = await browser.newPage();
+    blocked.on('dialog', dialog => dialog.accept());
+    await blocked.goto(process.env.QUOTE_TEST_URL || 'http://localhost:8604');
+    await blocked.evaluate(() => { Storage.prototype.setItem = function () { throw new Error('quota'); }; });
+    await blocked.getByText('Reusable service templates', { exact: true }).click();
+    await blocked.getByText('Import or export service templates', { exact: true }).click();
+    await blocked.getByLabel('Import service-template backup', { exact: true }).setInputFiles({ name: 'templates.json', mimeType: 'application/json', buffer: Buffer.from(backup) });
+    await blocked.getByText('Template changes are session-only.', { exact: false }).waitFor();
+    assert.equal(await blocked.evaluate(() => localStorage.getItem('quote-builder-templates-v1')), null);
+    assert(await blocked.getByRole('button', { name: 'Use template Sample review', exact: true }).isVisible());
+    const recoveryDownload = blocked.waitForEvent('download');
+    await blocked.getByRole('button', { name: 'Export service templates', exact: true }).click();
+    const recovered = JSON.parse(require('node:fs').readFileSync(await (await recoveryDownload).path(), 'utf8'));
+    assert.equal(recovered.templates[0].name, 'Sample review');
+    assert(await blocked.evaluate(() => {
+      const event = new Event('beforeunload', { cancelable: true }); window.dispatchEvent(event); return event.defaultPrevented;
+    }));
+    await blocked.close();
     assert.deepEqual(errors, []);
     console.log('PASS template backup cancellation and rejected formats');
   } finally { await browser.close(); }
