@@ -28,3 +28,12 @@ assert.equal(backups.mergeTemplateBackup([named], [named])[1].name.length, 80);
   await assert.rejects(() => backups.readTemplateBackupFile({ size: 512001, text: () => assert.fail('Read oversized file') }));
   await assert.rejects(() => backups.readTemplateBackupFile({ size: 1, text: async () => '{' }), /could not be read/);
 })();
+
+const quoteBackups = require('../.test-build/backups');
+const { newDraft } = require('../.test-build/drafts');
+const { snapshotQuote } = require('../.test-build/revisions');
+const revisionEnvelope = JSON.stringify({ version: 1, revisions: [snapshotQuote(newDraft('one'), 'r1', '2026-01-06T15:00:00.000Z')] });
+assert.throws(() => quoteBackups.parseBackup(backups.serializeTemplateBackup([template])));
+assert.throws(() => backups.parseTemplateBackup(quoteBackups.serializeBackup([newDraft('one')])));
+assert.throws(() => quoteBackups.parseBackup(revisionEnvelope));
+assert.throws(() => backups.parseTemplateBackup(revisionEnvelope));
