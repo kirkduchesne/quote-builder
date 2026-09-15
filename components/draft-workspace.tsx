@@ -1,4 +1,5 @@
 'use client';
+import { loadRevisions } from '@/lib/revision-storage';
 import { restoredDraft } from '@/lib/revisions';
 import { calculateTotal, dollars } from '@/lib/money';
 import { visibleDrafts } from '@/lib/organization';
@@ -7,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import { RevisionHistory } from '@/components/revision-history';
 import { QuoteForm } from '@/components/quote-form';
 import { Button } from '@/components/ui/button';
-import { newDraft, parseDrafts, validDraft, type Draft } from '@/lib/drafts';
+import { newDraft, unusedDraftId, parseDrafts, validDraft, type Draft } from '@/lib/drafts';
 import {
   duplicateDraft,
   searchDrafts,
@@ -24,6 +25,7 @@ import { writeDrafts } from '@/lib/draft-storage';
 const storageKey = 'quote-builder-drafts-v1';
 export function DraftWorkspace() {
   const organizationState = useOrganization();
+  const revisionSourceIds = useRef<string[]>([]);
   const savedRaw = useRef<string | null>(null);
   const [archiveScope, setArchiveScope] = useState('active');
   const [search, setSearch] = useState('');
@@ -38,15 +40,16 @@ export function DraftWorkspace() {
   const [blocked, setBlocked] = useState(false);
   const [message, setMessage] = useState('');
   useEffect(() => {
+    revisionSourceIds.current = loadRevisions({ getItem: key => localStorage.getItem(key) }).revisions.map(revision => revision.quote.id);
     try {
       const raw = localStorage.getItem(storageKey);
       savedRaw.current = raw;
       const saved = raw === null ? [] : parseDrafts(raw);
       updateCollection(saved);
-      setActive(saved[0] || newDraft('first'));
+      setActive(saved[0] || newDraft(unusedDraftId(saved, revisionSourceIds.current)));
     } catch {
       setBlocked(true);
-      setActive(newDraft('session'));
+      setActive(newDraft(unusedDraftId([], revisionSourceIds.current)));
       setMessage(
         'Saved drafts could not be read. Session-only changes will leave the saved data untouched.'
       );
@@ -91,7 +94,7 @@ export function DraftWorkspace() {
     setImporting(true);
     try {
       const incoming = await readBackupFile(file);
-      const merged = mergeBackup(draftsRef.current, incoming);
+      const merged = mergeBackup(draftsRef.current, incoming, revisionSourceIds.current);
       if (incoming.length === 0) {
         setMessage('The backup contains no drafts. Nothing was changed.');
         return;
@@ -108,7 +111,7 @@ export function DraftWorkspace() {
       setResetVersion((value) => value + 1);
       updateCollection(merged);
       setActive(
-        merged[merged.length - incoming.length] || newDraft(String(Date.now()))
+        merged[merged.length - incoming.length] || newDraft(unusedDraftId(draftsRef.current, revisionSourceIds.current))
       );
       setDirty(false);
       if (blocked) {
@@ -202,7 +205,7 @@ export function DraftWorkspace() {
     updateCollection(remaining);
     const retainedIds = organizationState.organization.archivedIds.filter(id => remaining.some(draft => draft.id === id));
     if (retainedIds.length !== organizationState.organization.archivedIds.length) organizationState.persist({ archivedIds: retainedIds });
-    setActive(remaining[0] || newDraft(String(Date.now())));
+    setActive(remaining[0] || newDraft(unusedDraftId(draftsRef.current, revisionSourceIds.current)));
     requestAnimationFrame(() => document.getElementById('quote-name')?.focus());
     setDirty(false);
     if (blocked) {
@@ -301,7 +304,7 @@ export function DraftWorkspace() {
           onClick={() => {
             if (canLeave()) {
               setResetVersion((value) => value + 1);
-              setActive(newDraft(String(Date.now())));
+              setActive(newDraft(unusedDraftId(draftsRef.current, revisionSourceIds.current)));
               setDirty(false);
             }
           }}
@@ -317,7 +320,7 @@ export function DraftWorkspace() {
           onClick={() => {
             if (!canLeave()) return;
             try {
-              save(duplicateDraft(drafts, active));
+              save(duplicateDraft(drafts, active, revisionSourceIds.current));
               setSearch('');
             } catch (error) {
               setMessage((error as Error).message);
@@ -412,7 +415,7 @@ export function DraftWorkspace() {
         {message}
       </p>
       {drafts.some(draft => draft.id === active.id) && <p className="mb-3 text-sm print:hidden">Saved version: {active.items.length} line items · {dollars(calculateTotal(active.items, active.discount).total)}. Unsaved form edits may differ.</p>}
-      <RevisionHistory savedIds={drafts.map(draft => draft.id)} savedQuote={drafts.find((draft) => draft.id === active.id)} onRestore={(quote, reservedIds) => {
+      <RevisionHistory onSourcesChange={ids => { revisionSourceIds.current = ids; }} savedIds={drafts.map(draft => draft.id)} savedQuote={drafts.find((draft) => draft.id === active.id)} onRestore={(quote, reservedIds) => {
         if (!canLeave()) return;
         try {
           const copy = restoredDraft(quote, draftsRef.current, reservedIds);

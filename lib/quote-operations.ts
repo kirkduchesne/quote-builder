@@ -21,11 +21,11 @@ export function moveLineDown(items: Item[], id: number): Item[] {
     [next[index], next[index + 1]] = [next[index + 1], next[index]];
   return next;
 }
-export function duplicateDraft(drafts: Draft[], source: Draft): Draft {
+export function duplicateDraft(drafts: Draft[], source: Draft, reservedIds: string[] = []): Draft {
   if (!validDraft(source) || drafts.length >= 20)
     throw new Error('Check the quote and keep at most 20 saved drafts.');
   let suffix = 1;
-  while (drafts.some((d) => d.id === 'copy-' + suffix)) suffix++;
+  while (drafts.some((d) => d.id === 'copy-' + suffix) || reservedIds.includes('copy-' + suffix)) suffix++;
   return {
     ...source,
     id: 'copy-' + suffix,

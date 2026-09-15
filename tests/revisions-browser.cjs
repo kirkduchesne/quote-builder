@@ -46,6 +46,14 @@ const assert = require('node:assert/strict');
     const sources = await page.evaluate(() => JSON.parse(localStorage.getItem('quote-builder-revisions-v1')).revisions.map(r => r.quote.id));
     const selected = await page.getByLabel('Saved drafts', { exact: true }).inputValue();
     assert(!sources.includes(selected));
+    await page.getByRole('button', { name: 'Duplicate quote', exact: true }).click();
+    await page.waitForFunction(() => document.getElementById('draft-picker').value.startsWith('copy-'));
+    const capturedSource = await page.getByLabel('Saved drafts', { exact: true }).inputValue();
+    await page.getByRole('button', { name: 'Capture saved quote', exact: true }).click();
+    await page.getByRole('button', { name: 'Delete draft', exact: true }).click();
+    await page.getByRole('button', { name: 'Duplicate quote', exact: true }).click();
+    await page.waitForFunction(id => document.getElementById('draft-picker').value.startsWith('copy-') && document.getElementById('draft-picker').value !== id, capturedSource);
+    assert.notEqual(await page.getByLabel('Saved drafts', { exact: true }).inputValue(), capturedSource);
     assert.deepEqual(errors, []);
     console.log('PASS revision capture, rename, immutable restore, deleted-source recovery, export, reload and deletion');
   } finally { await browser.close(); }

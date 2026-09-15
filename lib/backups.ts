@@ -12,7 +12,7 @@ export function parseBackup(raw: string): Draft[] {
     throw new Error('This is not a supported quote backup.');
   return parseDrafts(JSON.stringify({ version: 1, drafts: value.drafts }));
 }
-export function mergeBackup(existing: Draft[], incoming: Draft[]): Draft[] {
+export function mergeBackup(existing: Draft[], incoming: Draft[], reservedIds: string[] = []): Draft[] {
   if (
     existing.length + incoming.length > 20 ||
     !existing.every(validDraft) ||
@@ -25,7 +25,7 @@ export function mergeBackup(existing: Draft[], incoming: Draft[]): Draft[] {
   for (const draft of incoming) {
     let id = draft.id;
     let n = 1;
-    while (result.some((d) => d.id === id)) id = 'import-' + n++;
+    while (result.some((d) => d.id === id) || reservedIds.includes(id)) id = 'import-' + n++;
     let name = draft.name;
     let copy = 1;
     while (result.some((d) => d.name === name)) {

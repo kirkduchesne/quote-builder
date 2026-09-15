@@ -75,3 +75,10 @@ assert.equal(next.length, 40); assert(!next.some(r => r.id === 'group0-0'));
 assert.equal(next.filter(r => r.quote.id === 'source1').length, 5);
 assert.throws(() => revisions.captureRevision(history, newDraft('source9'), 'overflow', sample.capturedAt));
 assert.equal(history[0].id, 'group0-0');
+
+const { duplicateDraft } = require('../.test-build/quote-operations');
+const { mergeBackup } = require('../.test-build/backups');
+const { unusedDraftId } = require('../.test-build/drafts');
+assert.equal(duplicateDraft([], newDraft('original'), ['copy-1']).id, 'copy-2');
+assert.equal(unusedDraftId([], ['quote-1']), 'quote-2');
+assert.notEqual(mergeBackup([], [newDraft('copy-1')], ['copy-1'])[0].id, 'copy-1');

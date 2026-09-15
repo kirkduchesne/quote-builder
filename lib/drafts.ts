@@ -85,3 +85,10 @@ export function normalizedQuoteName(value: string): string | null {
   const name = value.trim();
   return name.length > 0 && name.length <= 80 ? name : null;
 }
+
+export function unusedDraftId(drafts: Draft[], reservedIds: string[] = []): string {
+  const used = new Set([...drafts.map(draft => draft.id), ...reservedIds]);
+  let suffix = 1;
+  while (used.has('quote-' + suffix)) suffix += 1;
+  return 'quote-' + suffix;
+}

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { captureRevision, renameRevision, deleteRevision, type Revision } from '@/lib/revisions';
 import { loadRevisions, saveRevisions } from '@/lib/revision-storage';
 
-export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuote?: Draft; savedIds: string[]; onRestore: (quote: Draft, reservedIds: string[]) => void }) {
+export function RevisionHistory({ savedQuote, savedIds, onRestore, onSourcesChange }: { savedQuote?: Draft; savedIds: string[]; onSourcesChange: (ids: string[]) => void; onRestore: (quote: Draft, reservedIds: string[]) => void }) {
   const [history, setHistory] = useState<Revision[]>([]);
   const [ready, setReady] = useState(false);
   const [readable, setReadable] = useState(true);
@@ -22,6 +22,7 @@ export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuot
   const raw = useRef<string | null>(null);
   useEffect(() => {
     const loaded = loadRevisions({ getItem: key => localStorage.getItem(key) });
+    onSourcesChange(loaded.revisions.map(revision => revision.quote.id));
     setHistory(loaded.revisions);
     raw.current = loaded.raw;
     setReadable(loaded.readable);
@@ -35,6 +36,7 @@ export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuot
     return () => window.removeEventListener('beforeunload', warn);
   }, [pending, editing]);
   function persist(next: Revision[], success: string) {
+    onSourcesChange(next.map(revision => revision.quote.id));
     setHistory(next);
     try {
       if (!readable) throw new Error('Unreadable storage');
