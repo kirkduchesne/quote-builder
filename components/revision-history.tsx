@@ -57,6 +57,7 @@ export function RevisionHistory({ savedQuote, savedIds, onRestore }: { savedQuot
   return <details className="my-4 print:hidden">
     <summary className="cursor-pointer font-medium">Saved revision history</summary>
     {!ready ? <p role="status">Loading revision history…</p> : <>
+      <p className="text-sm">Revision storage: {pending ? 'session-only changes need a portable copy' : readable ? 'loaded successfully' : 'unreadable saved data protected'}.</p>
       <p className="my-2 text-sm">Revisions are independent copies of saved quotes. Keep five per quote and forty in this browser.</p>
       {!readable && <p role="alert">Revision storage could not be read. Existing data will remain untouched.</p>}
       {history.length === 0 ? <p>No revisions captured yet.</p> : <p>{history.length} saved revisions.</p>}

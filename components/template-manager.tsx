@@ -213,6 +213,7 @@ export function TemplateManager({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <p className="text-sm">Template storage: {!ready ? 'loading' : pending ? 'session-only changes need export' : readable.current ? 'loaded successfully' : 'unreadable saved data protected'}.</p>
         <p className="text-sm">{30 - templates.length} service template spaces remaining.</p>
         <p>{searchTemplates(templates, search).length} matching templates</p>
         <ul>

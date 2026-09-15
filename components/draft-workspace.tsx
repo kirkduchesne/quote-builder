@@ -229,6 +229,12 @@ export function DraftWorkspace() {
   if (!active) return <p role="status">Loading saved drafts…</p>;
   return (
     <>
+      <details className="my-3 print:hidden">
+        <summary className="cursor-pointer font-medium">Local data status</summary>
+        <p>Saved quotes: {pendingStorage ? 'session-only changes need export' : blocked ? 'saved data protected from writes' : 'loaded successfully'}.</p>
+        <p>Draft organization: {!organizationState.ready ? 'loading' : organizationState.pending ? 'session-only metadata changes' : organizationState.message.includes('could not be read') ? 'unreadable metadata protected' : 'loaded successfully'}.</p>
+        <p className="text-sm">Template and revision storage status appears in their panels. Downloads preserve quote or template contents; archive flags stay in this browser.</p>
+      </details>
       <p className="mb-2 text-sm print:hidden">{20 - drafts.length} saved draft spaces remaining.</p>
       <div className="mb-3 print:hidden">
         <label htmlFor="archive-scope">Draft visibility</label>
