@@ -1,3 +1,4 @@
+import { truncateText } from './text';
 import { parseDrafts, type Draft, validDraft } from './drafts';
 export type QuoteBackup = {
   kind: 'quote-builder';
@@ -35,7 +36,7 @@ export function mergeBackup(
     let copy = 1;
     while (result.some((d) => d.name === name)) {
       const suffix = ' (import ' + copy++ + ')';
-      name = draft.name.slice(0, 80 - suffix.length) + suffix;
+      name = truncateText(draft.name, 80 - suffix.length) + suffix;
     }
     result.push({
       ...draft,

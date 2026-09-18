@@ -1,6 +1,6 @@
 # Quote Builder
 
-A local quote worksheet for turning repeatable services into clear, printable estimates. Build line items, reuse service templates, keep named drafts, and move saved quotes between browsers with validated JSON backups.
+A local quote worksheet for turning repeatable services into clear, printable estimates. Build line items, reuse service templates, keep named drafts and revision snapshots, and move quotes or service templates between browsers with validated JSON backups.
 
 ![Quote Builder with an example estimate](docs/preview.png)
 
@@ -29,13 +29,16 @@ Finish a line with **Add item** or **Update item**, or use **Cancel line** / Esc
 
 ## Storage and limits
 
-Everything stays in this browser's local storage; there are no accounts, network synchronization, payment processing, or tax services. Reloading discards edits that have not been saved. Clearing site data removes saved drafts and templates. Avoid storing sensitive customer information.
+Everything stays in this browser's local storage; there are no accounts, network synchronization, payment processing, or tax services. Reloading discards edits that have not been saved. Clearing site data removes saved drafts, templates, revision history, and archive metadata. Avoid storing sensitive customer information.
 
 Malformed saved data is left untouched. Failed writes are reported as session-only changes. Conflicting writes from another tab are rejected instead of silently overwriting its data. Keep the page open if saving fails; exporting saved drafts also includes drafts held only in the current session.
 
-Draft backups contain all saved quotes, including archived quotes, their lines and notes. Archive flags are browser-only metadata in a separate storage key; they are not portable. Deleted drafts are removed from that metadata, while independent captured revisions remain available. They exclude service templates and unfinished edits. Imports require confirmation, accept files up to 5 MB, and enforce the combined 20-draft limit. Service templates have a separate, validated JSON backup format (512 KB, 30 templates after merging). Imports assign unused identifiers and distinguish duplicate names, retain unfinished template edits, and serialize file reads. Export templates separately; quote backups do not contain them.
+- **Quote backups:** all saved drafts, including archived quotes, their lines and notes. Imports require confirmation, accept files up to 5 MB, and enforce the combined 20-draft limit. Unfinished edits and service templates are excluded.
+- **Template backups:** a separate validated JSON format, limited to 512 KB and 30 templates after merging. Imports assign unused identifiers, distinguish duplicate names, retain unfinished template edits, and permit one file read at a time.
+- **Revision history:** five snapshots per source quote and forty overall. Capturing a sixth replaces only that quote’s oldest snapshot; a full shared history requires explicit deletion. Captures use saved contents. Restore creates an independent saved draft; export downloads one snapshot as a standard quote backup, excluding its history label and capture time. There is no whole-history export.
+- **Archive metadata:** browser-only organization flags, excluded from all backups. Deleting a draft removes its archive flag while retaining independent revision snapshots for recovery.
 
-Revision history holds five snapshots per source quote and forty overall. Capturing a sixth replaces only that quote’s oldest snapshot; a full shared history requires explicit deletion. Captures use the saved quote, excluding unfinished edits. Revision labels and snapshots stay in a separate local storage collection.
+The **Local data status** disclosure and each auxiliary panel describe loaded, unreadable, or session-only data. Export session-only quote, template, or revision contents before closing; archive flags have no portable backup.
 
 Each quote permits 100 lines, whole quantities from 1–999, and unit prices from $0–$999,999.99. Notes are limited to 1,000 characters. This remains a small estimate worksheet, not an invoicing or accounting system.
 
@@ -68,8 +71,9 @@ This is a present-day reconstruction created in **September 2026**. Historical c
 
 - **2023:** one-page line items, integer-cent totals, discounts, and printing.
 - **2024:** saved drafts, quote references and notes, line editing, and storage safeguards.
-- **January–February 2025:** service templates, quote organization, portable draft backups, and keyboard/print refinements.
+- **2025:** service templates, draft organization, portable quote backups, and keyboard/print refinements.
+- **2026:** bounded revision recovery, template portability, draft archiving, and boundary/accessibility regression coverage.
 
-The 2025 baseline uses Next.js 14.2.22, React 18.3.1, TypeScript 5.3.3, and Tailwind CSS 3.4.1. The January framework update was resolved with a January 7, 2025 cutoff; all 130 locked package versions were checked against publication dates. These historical dependencies have known advisories and are intended for local portfolio demonstration, not current production deployment.
+The 2026 state retains the 2025 baseline: Next.js 14.2.22, React 18.3.1, TypeScript 5.3.3, and Tailwind CSS 3.4.1. The January framework update was resolved with a January 7, 2025 cutoff; all 130 locked package versions were checked against publication dates. These historical dependencies have known advisories and are intended for local portfolio demonstration, not current production deployment.
 
 Button and Input retain their original shadcn/ui source from revision [`c21ecfb665214e18cd5914ea319f925cd676e786`](https://github.com/shadcn-ui/ui/tree/c21ecfb665214e18cd5914ea319f925cd676e786), under `apps/www/registry/default/ui/`. The upstream MIT license is preserved in [SHADCN-LICENSE.md](SHADCN-LICENSE.md).

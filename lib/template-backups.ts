@@ -1,3 +1,4 @@
+import { truncateText } from './text';
 import { parseTemplates, type Template } from './templates';
 export const templateBackupBytes = 512000;
 export function parseTemplateBackup(raw: string): Template[] {
@@ -37,7 +38,7 @@ export function mergeTemplateBackup(
     let suffix = 1;
     while (result.some((item) => item.name === name)) {
       const ending = ' (import ' + suffix++ + ')';
-      name = template.name.slice(0, 80 - ending.length) + ending;
+      name = truncateText(template.name, 80 - ending.length) + ending;
     }
     result.push({ ...template, id, name });
   }

@@ -1,3 +1,4 @@
+import { truncateText } from './text';
 import { validDraft, type Draft } from './drafts';
 
 export const revisionLimit = 40;
@@ -176,7 +177,7 @@ export function restoredDraft(
   return {
     ...quote,
     id: 'restored-' + suffix,
-    name: quote.name.slice(0, 73) + ' (copy)',
+    name: truncateText(quote.name, 73) + ' (copy)',
     items: quote.items.map((item) => ({ ...item })),
   };
 }

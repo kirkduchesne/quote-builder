@@ -1,3 +1,4 @@
+import { truncateText } from './text';
 import { type Item, type Draft, unusedItemId, validDraft } from './drafts';
 export function duplicateLine(items: Item[], id: number): Item[] {
   const index = items.findIndex((item) => item.id === id);
@@ -37,7 +38,7 @@ export function duplicateDraft(
   return {
     ...source,
     id: 'copy-' + suffix,
-    name: source.name.slice(0, 73) + ' (copy)',
+    name: truncateText(source.name, 73) + ' (copy)',
     items: source.items.map((item) => ({ ...item })),
   };
 }
