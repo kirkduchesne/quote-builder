@@ -6,7 +6,7 @@ const assert = require('node:assert/strict');
     const page = await browser.newPage();
     let accept = true;
     page.on('dialog', (dialog) =>
-      accept ? dialog.accept() : dialog.dismiss()
+      accept ? dialog.accept() : dialog.dismiss(),
     );
     await page.goto(process.env.QUOTE_TEST_URL || 'http://localhost:8504');
     await page
@@ -32,12 +32,12 @@ const assert = require('node:assert/strict');
         buffer: bytes,
       });
     await page.waitForFunction(
-      () => document.querySelector('#draft-picker').options.length === 3
+      () => document.querySelector('#draft-picker').options.length === 3,
     );
     const names = await page.locator('#draft-picker option').allTextContents();
     assert(names.includes('Sample estimate (import 1)'));
     const saved = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem('quote-builder-drafts-v1'))
+      JSON.parse(localStorage.getItem('quote-builder-drafts-v1')),
     );
     assert.equal(new Set(saved.drafts.map((d) => d.id)).size, 2);
     accept = false;
@@ -52,7 +52,7 @@ const assert = require('node:assert/strict');
     await page.waitForTimeout(100);
     assert.equal(
       await page.getByLabel('Quote name', { exact: true }).inputValue(),
-      'Unsaved edit'
+      'Unsaved edit',
     );
     assert.equal(await page.locator('#draft-picker option').count(), 3);
     await page
@@ -65,14 +65,14 @@ const assert = require('node:assert/strict');
     await page.getByText(/Backup could not be read:/).waitFor();
     assert.equal(await page.locator('#draft-picker option').count(), 3);
     await page.evaluate(() =>
-      localStorage.setItem('quote-builder-drafts-v1', 'external update')
+      localStorage.setItem('quote-builder-drafts-v1', 'external update'),
     );
     await page.getByRole('button', { name: 'Save draft', exact: true }).click();
     assert.equal(
       await page.evaluate(() =>
-        localStorage.getItem('quote-builder-drafts-v1')
+        localStorage.getItem('quote-builder-drafts-v1'),
       ),
-      'external update'
+      'external update',
     );
     const fresh = await browser.newPage();
     fresh.on('dialog', (d) => d.accept());
@@ -85,7 +85,7 @@ const assert = require('node:assert/strict');
       version: 1,
       drafts: [
         {
-          id: 'first',
+          id: 'quote-1',
           name: 'Imported quote',
           reference: 'IMPORT',
           notes: 'Imported notes',
@@ -104,11 +104,11 @@ const assert = require('node:assert/strict');
         buffer: Buffer.from(JSON.stringify(sameId)),
       });
     await fresh.waitForFunction(
-      () => document.querySelector('#quote-name').value === 'Imported quote'
+      () => document.querySelector('#quote-name').value === 'Imported quote',
     );
     assert.equal(
       await fresh.getByLabel('Quote notes').inputValue(),
-      'Imported notes'
+      'Imported notes',
     );
     assert.equal(await fresh.locator('dl dd').last().textContent(), '$24.68');
     await fresh
@@ -116,9 +116,10 @@ const assert = require('node:assert/strict');
       .click();
     assert.deepEqual(
       await fresh.evaluate(
-        () => JSON.parse(localStorage.getItem('quote-builder-drafts-v1')).drafts
+        () =>
+          JSON.parse(localStorage.getItem('quote-builder-drafts-v1')).drafts,
       ),
-      sameId.drafts
+      sameId.drafts,
     );
     const delayed = await browser.newPage();
     delayed.on('dialog', (d) => d.accept());
@@ -144,7 +145,7 @@ const assert = require('node:assert/strict');
     assert(
       await delayed
         .getByLabel('Import quote backup', { exact: true })
-        .isDisabled()
+        .isDisabled(),
     );
     await delayed
       .getByLabel('Quote name', { exact: true })
@@ -156,16 +157,16 @@ const assert = require('node:assert/strict');
     await delayed.waitForFunction(
       () =>
         JSON.parse(localStorage.getItem('quote-builder-drafts-v1')).drafts
-          .length === 2
+          .length === 2,
     );
     assert.equal(await delayed.locator('#draft-picker option').count(), 3);
     assert(
       !(await delayed
         .getByLabel('Import quote backup', { exact: true })
-        .isDisabled())
+        .isDisabled()),
     );
     console.log(
-      'PASS backup download, collision-safe import, cancellation, invalid files, stale-write preservation'
+      'PASS backup download, collision-safe import, cancellation, invalid files, stale-write preservation',
     );
   } finally {
     await browser.close();

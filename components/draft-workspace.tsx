@@ -8,7 +8,13 @@ import { useEffect, useRef, useState } from 'react';
 import { RevisionHistory } from '@/components/revision-history';
 import { QuoteForm } from '@/components/quote-form';
 import { Button } from '@/components/ui/button';
-import { newDraft, unusedDraftId, parseDrafts, validDraft, type Draft } from '@/lib/drafts';
+import {
+  newDraft,
+  unusedDraftId,
+  parseDrafts,
+  validDraft,
+  type Draft,
+} from '@/lib/drafts';
 import {
   duplicateDraft,
   searchDrafts,
@@ -40,18 +46,22 @@ export function DraftWorkspace() {
   const [blocked, setBlocked] = useState(false);
   const [message, setMessage] = useState('');
   useEffect(() => {
-    revisionSourceIds.current = loadRevisions({ getItem: key => localStorage.getItem(key) }).revisions.map(revision => revision.quote.id);
+    revisionSourceIds.current = loadRevisions({
+      getItem: (key) => localStorage.getItem(key),
+    }).revisions.map((revision) => revision.quote.id);
     try {
       const raw = localStorage.getItem(storageKey);
       savedRaw.current = raw;
       const saved = raw === null ? [] : parseDrafts(raw);
       updateCollection(saved);
-      setActive(saved[0] || newDraft(unusedDraftId(saved, revisionSourceIds.current)));
+      setActive(
+        saved[0] || newDraft(unusedDraftId(saved, revisionSourceIds.current)),
+      );
     } catch {
       setBlocked(true);
       setActive(newDraft(unusedDraftId([], revisionSourceIds.current)));
       setMessage(
-        'Saved drafts could not be read. Session-only changes will leave the saved data untouched.'
+        'Saved drafts could not be read. Session-only changes will leave the saved data untouched.',
       );
     }
   }, []);
@@ -70,7 +80,7 @@ export function DraftWorkspace() {
       if (event.key === storageKey || event.key === null) {
         setBlocked(true);
         setMessage(
-          'Saved drafts changed in another tab. Reload before saving; session changes will not overwrite them.'
+          'Saved drafts changed in another tab. Reload before saving; session changes will not overwrite them.',
         );
       }
     }
@@ -94,7 +104,11 @@ export function DraftWorkspace() {
     setImporting(true);
     try {
       const incoming = await readBackupFile(file);
-      const merged = mergeBackup(draftsRef.current, incoming, revisionSourceIds.current);
+      const merged = mergeBackup(
+        draftsRef.current,
+        incoming,
+        revisionSourceIds.current,
+      );
       if (incoming.length === 0) {
         setMessage('The backup contains no drafts. Nothing was changed.');
         return;
@@ -105,19 +119,25 @@ export function DraftWorkspace() {
             ' draft(s) ready to import. ' +
             (dirtyRef.current
               ? 'Import drafts and discard unsaved quote changes? Saved drafts are kept. Cancel to save your edits first.'
-              : 'Import saved drafts? Your existing saved drafts will be kept.')
+              : 'Import saved drafts? Your existing saved drafts will be kept.'),
         )
-      ) { setMessage('Quote import cancelled. Saved drafts and unfinished edits are unchanged.'); return; }
+      ) {
+        setMessage(
+          'Quote import cancelled. Saved drafts and unfinished edits are unchanged.',
+        );
+        return;
+      }
       setResetVersion((value) => value + 1);
       updateCollection(merged);
       setActive(
-        merged[merged.length - incoming.length] || newDraft(unusedDraftId(draftsRef.current, revisionSourceIds.current))
+        merged[merged.length - incoming.length] ||
+          newDraft(unusedDraftId(draftsRef.current, revisionSourceIds.current)),
       );
       setDirty(false);
       if (blocked) {
         setPendingStorage(true);
         setMessage(
-          'Imported drafts are session-only. Existing unreadable storage was preserved.'
+          'Imported drafts are session-only. Existing unreadable storage was preserved.',
         );
         return;
       }
@@ -126,20 +146,20 @@ export function DraftWorkspace() {
           localStorage,
           storageKey,
           merged,
-          savedRaw.current
+          savedRaw.current,
         );
         setPendingStorage(false);
         setMessage('Quote backup imported.');
       } catch {
         setPendingStorage(true);
         setMessage(
-          'Imported drafts are session-only because storage is unavailable or full.'
+          'Imported drafts are session-only because storage is unavailable or full.',
         );
       }
     } catch (error) {
       setMessage(
         (error as Error).message ||
-          'The backup could not be read. Existing drafts are unchanged.'
+          'The backup could not be read. Existing drafts are unchanged.',
       );
     } finally {
       importBusy.current = false;
@@ -155,7 +175,7 @@ export function DraftWorkspace() {
   function save(draft: Draft) {
     if (!validDraft(draft)) {
       setMessage(
-        'The draft has invalid values. Check the fields before saving.'
+        'The draft has invalid values. Check the fields before saving.',
       );
       return;
     }
@@ -172,7 +192,7 @@ export function DraftWorkspace() {
     if (blocked) {
       setPendingStorage(true);
       setMessage(
-        'Draft kept for this session only. Unreadable saved data was not changed.'
+        'Draft kept for this session only. Unreadable saved data was not changed.',
       );
       return;
     }
@@ -181,14 +201,14 @@ export function DraftWorkspace() {
         localStorage,
         storageKey,
         saved,
-        savedRaw.current
+        savedRaw.current,
       );
       setPendingStorage(false);
       setMessage('Draft saved in this browser.');
     } catch {
       setPendingStorage(true);
       setMessage(
-        'Storage is unavailable or full. Draft kept for this session only.'
+        'Storage is unavailable or full. Draft kept for this session only.',
       );
     }
   }
@@ -196,16 +216,24 @@ export function DraftWorkspace() {
     if (
       !active ||
       !window.confirm(
-        'Delete this saved quote and discard any unsaved changes?'
+        'Delete this saved quote and discard any unsaved changes?',
       )
     )
       return;
     const remaining = drafts.filter((d) => d.id !== active.id);
     setResetVersion((value) => value + 1);
     updateCollection(remaining);
-    const retainedIds = organizationState.organization.archivedIds.filter(id => remaining.some(draft => draft.id === id));
-    if (retainedIds.length !== organizationState.organization.archivedIds.length) organizationState.persist({ archivedIds: retainedIds });
-    setActive(remaining[0] || newDraft(unusedDraftId(draftsRef.current, revisionSourceIds.current)));
+    const retainedIds = organizationState.organization.archivedIds.filter(
+      (id) => remaining.some((draft) => draft.id === id),
+    );
+    if (
+      retainedIds.length !== organizationState.organization.archivedIds.length
+    )
+      organizationState.persist({ archivedIds: retainedIds });
+    setActive(
+      remaining[0] ||
+        newDraft(unusedDraftId(draftsRef.current, revisionSourceIds.current)),
+    );
     requestAnimationFrame(() => document.getElementById('quote-name')?.focus());
     setDirty(false);
     if (blocked) {
@@ -218,14 +246,14 @@ export function DraftWorkspace() {
         localStorage,
         storageKey,
         remaining,
-        savedRaw.current
+        savedRaw.current,
       );
       setPendingStorage(false);
       setMessage('Draft deleted.');
     } catch {
       setPendingStorage(true);
       setMessage(
-        'Storage failed. Deletion is session-only; the saved draft may return after reload.'
+        'Storage failed. Deletion is session-only; the saved draft may return after reload.',
       );
     }
   }
@@ -233,16 +261,49 @@ export function DraftWorkspace() {
   return (
     <>
       <details className="my-3 print:hidden">
-        <summary className="cursor-pointer font-medium">Local data status</summary>
-        <p>Saved quotes: {pendingStorage ? 'session-only changes need export' : blocked ? 'saved data protected from writes' : 'loaded successfully'}.</p>
-        <p>Draft organization: {!organizationState.ready ? 'loading' : organizationState.pending ? 'session-only metadata changes' : organizationState.message.includes('could not be read') ? 'unreadable metadata protected' : 'loaded successfully'}.</p>
-        <p className="text-sm">Template and revision storage status appears in their panels. Downloads preserve quote or template contents; archive flags stay in this browser.</p>
+        <summary className="cursor-pointer font-medium">
+          Local data status
+        </summary>
+        <p>
+          Saved quotes:{' '}
+          {pendingStorage
+            ? 'session-only changes need export'
+            : blocked
+            ? 'saved data protected from writes'
+            : 'loaded successfully'}
+          .
+        </p>
+        <p>
+          Draft organization:{' '}
+          {!organizationState.ready
+            ? 'loading'
+            : organizationState.pending
+            ? 'session-only metadata changes'
+            : organizationState.message.includes('could not be read')
+            ? 'unreadable metadata protected'
+            : 'loaded successfully'}
+          .
+        </p>
+        <p className="text-sm">
+          Template and revision storage status appears in their panels.
+          Downloads preserve quote or template contents; archive flags stay in
+          this browser.
+        </p>
       </details>
-      <p className="mb-2 text-sm print:hidden">{20 - drafts.length} saved draft spaces remaining.</p>
+      <p className="mb-2 text-sm print:hidden">
+        {20 - drafts.length} saved draft spaces remaining.
+      </p>
       <div className="mb-3 print:hidden">
         <label htmlFor="archive-scope">Draft visibility</label>
-        <select id="archive-scope" className="rounded border p-2" value={archiveScope} onChange={event => setArchiveScope(event.target.value)}>
-          <option value="active">Active drafts</option><option value="archived">Archived drafts</option><option value="all">All drafts</option>
+        <select
+          id="archive-scope"
+          className="rounded border p-2"
+          value={archiveScope}
+          onChange={(event) => setArchiveScope(event.target.value)}
+        >
+          <option value="active">Active drafts</option>
+          <option value="archived">Archived drafts</option>
+          <option value="all">All drafts</option>
         </select>
       </div>
       <div className="mb-4 grid gap-3 sm:grid-cols-2 print:hidden">
@@ -289,9 +350,15 @@ export function DraftWorkspace() {
             {orderDrafts(
               drafts.filter(
                 (d) =>
-                  d.id === active.id || (visibleDrafts([d], organizationState.organization, archiveScope).length > 0 && searchDrafts([d], search).length > 0)
+                  d.id === active.id ||
+                  (visibleDrafts(
+                    [d],
+                    organizationState.organization,
+                    archiveScope,
+                  ).length > 0 &&
+                    searchDrafts([d], search).length > 0),
               ),
-              order
+              order,
             ).map((d) => (
               <option key={d.id} value={d.id}>
                 {d.name}
@@ -304,7 +371,11 @@ export function DraftWorkspace() {
           onClick={() => {
             if (canLeave()) {
               setResetVersion((value) => value + 1);
-              setActive(newDraft(unusedDraftId(draftsRef.current, revisionSourceIds.current)));
+              setActive(
+                newDraft(
+                  unusedDraftId(draftsRef.current, revisionSourceIds.current),
+                ),
+              );
               setDirty(false);
             }
           }}
@@ -339,14 +410,51 @@ export function DraftWorkspace() {
         </Button>
       </div>
       <div className="my-3 print:hidden">
-        <Button type="button" variant="outline" disabled={!organizationState.ready || !drafts.some(draft => draft.id === active.id)} onClick={() => {
-          organizationState.archive(active.id, !organizationState.organization.archivedIds.includes(active.id));
-        }}>{organizationState.organization.archivedIds.includes(active.id) ? 'Unarchive current draft' : 'Archive current draft'}</Button>
-        {organizationState.organization.archivedIds.includes(active.id) && <p className="my-2 font-medium">Current draft is archived. It remains editable and printable.</p>}
-        <Button type="button" variant="ghost" disabled={!organizationState.ready || !organizationState.organization.archivedIds.length} onClick={() => {
-          if (window.confirm('Unarchive all drafts? Quote contents and unfinished edits are unchanged.')) organizationState.persist({ archivedIds: [] });
-        }}>Unarchive all drafts</Button>
-        <p className="text-sm">Archiving organizes saved drafts without changing quote contents or unfinished edits.</p>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={
+            !organizationState.ready ||
+            !drafts.some((draft) => draft.id === active.id)
+          }
+          onClick={() => {
+            organizationState.archive(
+              active.id,
+              !organizationState.organization.archivedIds.includes(active.id),
+            );
+          }}
+        >
+          {organizationState.organization.archivedIds.includes(active.id)
+            ? 'Unarchive current draft'
+            : 'Archive current draft'}
+        </Button>
+        {organizationState.organization.archivedIds.includes(active.id) && (
+          <p className="my-2 font-medium">
+            Current draft is archived. It remains editable and printable.
+          </p>
+        )}
+        <Button
+          type="button"
+          variant="ghost"
+          disabled={
+            !organizationState.ready ||
+            !organizationState.organization.archivedIds.length
+          }
+          onClick={() => {
+            if (
+              window.confirm(
+                'Unarchive all drafts? Quote contents and unfinished edits are unchanged.',
+              )
+            )
+              organizationState.persist({ archivedIds: [] });
+          }}
+        >
+          Unarchive all drafts
+        </Button>
+        <p className="text-sm">
+          Archiving organizes saved drafts without changing quote contents or
+          unfinished edits.
+        </p>
         <p role="status">{organizationState.message}</p>
       </div>
       <details className="my-4 print:hidden">
@@ -354,7 +462,10 @@ export function DraftWorkspace() {
           Import or export quote backups
         </summary>
         <div className="mt-3">
-          <p className="text-sm">Exports include all saved drafts, including archived quotes. Archive flags stay in this browser and are not included.</p>
+          <p className="text-sm">
+            Exports include all saved drafts, including archived quotes. Archive
+            flags stay in this browser and are not included.
+          </p>
           <Button
             type="button"
             variant="outline"
@@ -362,11 +473,11 @@ export function DraftWorkspace() {
               try {
                 downloadBackup(drafts);
                 setMessage(
-                  'Saved drafts exported. Unfinished quote or template edits are not included.'
+                  'Saved drafts exported. Unfinished quote or template edits are not included.',
                 );
               } catch {
                 setMessage(
-                  'The backup download could not start. Keep this page open and try again.'
+                  'The backup download could not start. Keep this page open and try again.',
                 );
               }
             }}
@@ -396,8 +507,13 @@ export function DraftWorkspace() {
         </p>
       ) : null}
       <p className="print:hidden">
-        {searchDrafts(visibleDrafts(drafts, organizationState.organization, archiveScope), search).length} saved drafts match this view. The current
-        quote remains available.
+        {
+          searchDrafts(
+            visibleDrafts(drafts, organizationState.organization, archiveScope),
+            search,
+          ).length
+        }{' '}
+        saved drafts match this view. The current quote remains available.
       </p>
       {importing ? (
         <p role="status" className="print:hidden">
@@ -408,23 +524,40 @@ export function DraftWorkspace() {
         {dirty
           ? 'Quote has unsaved changes.'
           : drafts.some((d) => d.id === active.id)
-            ? 'Quote matches its saved draft.'
-            : 'New quote — not saved yet.'}
+          ? 'Quote matches its saved draft.'
+          : 'New quote — not saved yet.'}
       </p>
       <p role="status" className="mb-4 print:hidden">
         {message}
       </p>
-      {drafts.some(draft => draft.id === active.id) && <p className="mb-3 text-sm print:hidden">Saved version: {active.items.length} line items · {dollars(calculateTotal(active.items, active.discount).total)}. Unsaved form edits may differ.</p>}
-      <RevisionHistory onSourcesChange={ids => { revisionSourceIds.current = ids; }} savedIds={drafts.map(draft => draft.id)} savedQuote={drafts.find((draft) => draft.id === active.id)} onRestore={(quote, reservedIds) => {
-        if (!canLeave()) return;
-        try {
-          const copy = restoredDraft(quote, draftsRef.current, reservedIds);
-          setResetVersion(value => value + 1);
-          save(copy);
-          setSearch('');
-          requestAnimationFrame(() => document.getElementById('quote-name')?.focus());
-        } catch (error) { setMessage((error as Error).message); }
-      }} />
+      {drafts.some((draft) => draft.id === active.id) && (
+        <p className="mb-3 text-sm print:hidden">
+          Saved version: {active.items.length} line items ·{' '}
+          {dollars(calculateTotal(active.items, active.discount).total)}.
+          Unsaved form edits may differ.
+        </p>
+      )}
+      <RevisionHistory
+        onSourcesChange={(ids) => {
+          revisionSourceIds.current = ids;
+        }}
+        savedIds={drafts.map((draft) => draft.id)}
+        savedQuote={drafts.find((draft) => draft.id === active.id)}
+        onRestore={(quote, reservedIds) => {
+          if (!canLeave()) return;
+          try {
+            const copy = restoredDraft(quote, draftsRef.current, reservedIds);
+            setResetVersion((value) => value + 1);
+            save(copy);
+            setSearch('');
+            requestAnimationFrame(
+              () => document.getElementById('quote-name')?.focus(),
+            );
+          } catch (error) {
+            setMessage((error as Error).message);
+          }
+        }}
+      />
       <QuoteForm
         resetVersion={resetVersion}
         initial={active}

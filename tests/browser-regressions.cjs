@@ -17,14 +17,19 @@ const assert = require('node:assert/strict');
     await page.getByLabel('Quote name', { exact: true }).fill('Session quote');
     await page.getByRole('button', { name: 'Save draft', exact: true }).click();
     assert(
-      (await page.getByRole('status').first().textContent()).includes(
-        'session only'
-      )
+      (
+        await page
+          .getByRole('status')
+          .filter({ hasText: 'session only' })
+          .textContent()
+      ).includes('session only'),
     );
     const unloadBlocked = () =>
       page.evaluate(
         () =>
-          !window.dispatchEvent(new Event('beforeunload', { cancelable: true }))
+          !window.dispatchEvent(
+            new Event('beforeunload', { cancelable: true }),
+          ),
       );
     assert(await unloadBlocked());
     await page.evaluate(() => {
@@ -35,15 +40,15 @@ const assert = require('node:assert/strict');
       .click();
     await page
       .getByRole('status')
-      .first()
       .filter({ hasText: 'Draft deleted.' })
       .waitFor();
     assert.equal(await unloadBlocked(), false);
     assert.deepEqual(
       await page.evaluate(
-        () => JSON.parse(localStorage.getItem('quote-builder-drafts-v1')).drafts
+        () =>
+          JSON.parse(localStorage.getItem('quote-builder-drafts-v1')).drafts,
       ),
-      []
+      [],
     );
     console.log('PASS recovered storage deletion clears unload warning');
   } finally {
@@ -66,28 +71,26 @@ const assert = require('node:assert/strict');
     await page.getByLabel('Unit price (USD)', { exact: true }).fill('10');
     await page.getByRole('button', { name: 'Add item', exact: true }).click();
     await page.getByRole('button', { name: 'Save draft', exact: true }).click();
-    await page
-      .getByRole('status')
-      .first()
-      .filter({ hasText: 'Draft saved' })
-      .waitFor();
+    await page.getByRole('status').filter({ hasText: 'Draft saved' }).waitFor();
     const unloadBlocked = () =>
       page.evaluate(
         () =>
-          !window.dispatchEvent(new Event('beforeunload', { cancelable: true }))
+          !window.dispatchEvent(
+            new Event('beforeunload', { cancelable: true }),
+          ),
       );
     assert.equal(
       await unloadBlocked(),
       false,
-      'trimmed saved name must not remain dirty'
+      'trimmed saved name must not remain dirty',
     );
     assert.equal(
       await page.evaluate(
         () =>
           JSON.parse(localStorage.getItem('quote-builder-drafts-v1')).drafts[0]
-            .name
+            .name,
       ),
-      'Padded quote'
+      'Padded quote',
     );
     await page
       .getByRole('button', { name: 'Edit Service', exact: true })
@@ -97,16 +100,16 @@ const assert = require('node:assert/strict');
     assert(
       await page
         .getByRole('button', { name: 'Save draft', exact: true })
-        .isDisabled()
+        .isDisabled(),
     );
     assert(
       await page
         .getByRole('button', { name: 'Print quote', exact: true })
-        .isDisabled()
+        .isDisabled(),
     );
     assert(
       await unloadBlocked(),
-      'cleared edit fields must retain dirty state'
+      'cleared edit fields must retain dirty state',
     );
     let prompted = false;
     page.once('dialog', (dialog) => {
@@ -118,17 +121,17 @@ const assert = require('node:assert/strict');
     assert(
       await page
         .getByRole('button', { name: 'Cancel line', exact: true })
-        .isVisible()
+        .isVisible(),
     );
     await page
       .getByRole('button', { name: 'Cancel line', exact: true })
       .click();
     await page.waitForFunction(() =>
-      window.dispatchEvent(new Event('beforeunload', { cancelable: true }))
+      window.dispatchEvent(new Event('beforeunload', { cancelable: true })),
     );
     assert.equal(await unloadBlocked(), false);
     console.log(
-      'PASS cleared editing guards and normalized saved-name dirty state'
+      'PASS cleared editing guards and normalized saved-name dirty state',
     );
   } finally {
     await browser.close();

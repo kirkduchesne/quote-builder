@@ -55,7 +55,7 @@ export function validDraft(value: unknown): value is Draft {
         i.quantity <= 999 &&
         Number.isInteger(i.cents) &&
         i.cents >= 0 &&
-        i.cents <= 99999999
+        i.cents <= 99999999,
     ) &&
     new Set(d.items.map((i) => i.id)).size === d.items.length
   );
@@ -86,8 +86,11 @@ export function normalizedQuoteName(value: string): string | null {
   return name.length > 0 && name.length <= 80 ? name : null;
 }
 
-export function unusedDraftId(drafts: Draft[], reservedIds: string[] = []): string {
-  const used = new Set([...drafts.map(draft => draft.id), ...reservedIds]);
+export function unusedDraftId(
+  drafts: Draft[],
+  reservedIds: string[] = [],
+): string {
+  const used = new Set([...drafts.map((draft) => draft.id), ...reservedIds]);
   let suffix = 1;
   while (used.has('quote-' + suffix)) suffix += 1;
   return 'quote-' + suffix;

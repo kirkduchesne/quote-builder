@@ -21,11 +21,19 @@ export function moveLineDown(items: Item[], id: number): Item[] {
     [next[index], next[index + 1]] = [next[index + 1], next[index]];
   return next;
 }
-export function duplicateDraft(drafts: Draft[], source: Draft, reservedIds: string[] = []): Draft {
+export function duplicateDraft(
+  drafts: Draft[],
+  source: Draft,
+  reservedIds: string[] = [],
+): Draft {
   if (!validDraft(source) || drafts.length >= 20)
     throw new Error('Check the quote and keep at most 20 saved drafts.');
   let suffix = 1;
-  while (drafts.some((d) => d.id === 'copy-' + suffix) || reservedIds.includes('copy-' + suffix)) suffix++;
+  while (
+    drafts.some((d) => d.id === 'copy-' + suffix) ||
+    reservedIds.includes('copy-' + suffix)
+  )
+    suffix++;
   return {
     ...source,
     id: 'copy-' + suffix,
@@ -36,14 +44,14 @@ export function duplicateDraft(drafts: Draft[], source: Draft, reservedIds: stri
 export function searchDrafts(drafts: Draft[], query: string) {
   const q = query.trim().toLowerCase();
   return drafts.filter((d) =>
-    (d.name + ' ' + d.reference).toLowerCase().includes(q)
+    (d.name + ' ' + d.reference).toLowerCase().includes(q),
   );
 }
 export function orderDrafts(drafts: Draft[], order: string) {
   return order === 'name'
     ? [...drafts].sort(
         (a, b) =>
-          a.name.localeCompare(b.name, 'en') || a.id.localeCompare(b.id, 'en')
+          a.name.localeCompare(b.name, 'en') || a.id.localeCompare(b.id, 'en'),
       )
     : [...drafts];
 }

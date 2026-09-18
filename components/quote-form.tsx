@@ -70,7 +70,7 @@ export function QuoteForm({
         editing !== null ||
         !!description ||
         !!price ||
-        quantity !== '1'
+        quantity !== '1',
     );
   }, [
     name,
@@ -101,7 +101,7 @@ export function QuoteForm({
       cents === null
     ) {
       setMessage(
-        'Enter a description, quantity from 1 to 999, and price from 0 to 999999.99 with at most two decimals.'
+        'Enter a description, quantity from 1 to 999, and price from 0 to 999999.99 with at most two decimals.',
       );
       return;
     }
@@ -114,7 +114,7 @@ export function QuoteForm({
     setItems(
       editing === null
         ? [...items, item]
-        : items.map((row) => (row.id === editing ? item : row))
+        : items.map((row) => (row.id === editing ? item : row)),
     );
     setEditing(null);
     descriptionRef.current?.focus();
@@ -148,7 +148,9 @@ export function QuoteForm({
           />
         </div>
       </div>
-      <p className="hidden text-sm uppercase tracking-wide print:block">Service estimate</p>
+      <p className="hidden text-sm uppercase tracking-wide print:block">
+        Service estimate
+      </p>
       <h2 className="hidden break-words text-2xl print:block">{name}</h2>
       {reference ? (
         <p className="hidden break-words print:block">
@@ -166,7 +168,7 @@ export function QuoteForm({
           if (
             (description || price || quantity !== '1' || editing !== null) &&
             !window.confirm(
-              'Discard the unfinished line item before using this template?'
+              'Discard the unfinished line item before using this template?',
             )
           )
             return;
@@ -269,8 +271,13 @@ export function QuoteForm({
           >
             <span className="min-w-0 break-all">
               <span className="mr-2 text-sm">{index + 1}.</span>
-              {item.description} · <span className="sr-only print:not-sr-only">Quantity: </span>{item.quantity} × <span className="sr-only print:not-sr-only">Unit price: </span>{dollars(item.cents)} ={' '}
-              <span className="sr-only print:not-sr-only">Line total: </span>{dollars(item.quantity * item.cents)}
+              {item.description} ·{' '}
+              <span className="sr-only print:not-sr-only">Quantity: </span>
+              {item.quantity} ×{' '}
+              <span className="sr-only print:not-sr-only">Unit price: </span>
+              {dollars(item.cents)} ={' '}
+              <span className="sr-only print:not-sr-only">Line total: </span>
+              {dollars(item.quantity * item.cents)}
             </span>{' '}
             <Button
               type="button"
@@ -294,7 +301,7 @@ export function QuoteForm({
               onClick={() => {
                 setItems(moveLineDown(items, item.id));
                 setMessage(
-                  item.description + ' moved to line ' + (index + 2) + '.'
+                  item.description + ' moved to line ' + (index + 2) + '.',
                 );
               }}
             >
@@ -322,7 +329,10 @@ export function QuoteForm({
               aria-label={'Edit ' + item.description}
               onClick={() => {
                 if (
-                  (description || price || quantity !== '1' || editing !== null) &&
+                  (description ||
+                    price ||
+                    quantity !== '1' ||
+                    editing !== null) &&
                   !window.confirm('Discard the unfinished line item?')
                 )
                   return;

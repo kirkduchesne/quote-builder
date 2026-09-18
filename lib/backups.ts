@@ -12,20 +12,25 @@ export function parseBackup(raw: string): Draft[] {
     throw new Error('This is not a supported quote backup.');
   return parseDrafts(JSON.stringify({ version: 1, drafts: value.drafts }));
 }
-export function mergeBackup(existing: Draft[], incoming: Draft[], reservedIds: string[] = []): Draft[] {
+export function mergeBackup(
+  existing: Draft[],
+  incoming: Draft[],
+  reservedIds: string[] = [],
+): Draft[] {
   if (
     existing.length + incoming.length > 20 ||
     !existing.every(validDraft) ||
     !incoming.every(validDraft)
   )
     throw new Error(
-      'The combined collection must contain at most 20 valid drafts.'
+      'The combined collection must contain at most 20 valid drafts.',
     );
   const result = [...existing];
   for (const draft of incoming) {
     let id = draft.id;
     let n = 1;
-    while (result.some((d) => d.id === id) || reservedIds.includes(id)) id = 'import-' + n++;
+    while (result.some((d) => d.id === id) || reservedIds.includes(id))
+      id = 'import-' + n++;
     let name = draft.name;
     let copy = 1;
     while (result.some((d) => d.name === name)) {
@@ -45,14 +50,14 @@ export function serializeBackup(drafts: Draft[]) {
   const raw = JSON.stringify(
     { kind: 'quote-builder', version: 1, drafts },
     null,
-    2
+    2,
   );
   parseBackup(raw);
   return raw;
 }
 export function downloadBackup(drafts: Draft[]) {
   const url = URL.createObjectURL(
-    new Blob([serializeBackup(drafts)], { type: 'application/json' })
+    new Blob([serializeBackup(drafts)], { type: 'application/json' }),
   );
   try {
     const link = document.createElement('a');
