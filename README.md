@@ -47,9 +47,20 @@ npm run typecheck
 npm run build
 ```
 
-The domain tests cover money boundaries, template and draft schemas, duplicate identifiers, line operations, backup roundtrips, import limits, and stale-storage protection. CI runs the tests and production build with pinned actions and Node 20.18.1.
+The domain tests cover money boundaries, draft/template/revision schemas, archive filtering, identifier reservations, backup roundtrips and limits, immutable restoration, and stale-storage protection. CI runs domain tests and the production build with pinned actions and Node 20.18.1.
 
-The four browser suites—`tests/browser-regressions.cjs`, `tests/templates-browser.cjs`, `tests/backups-browser.cjs`, and `tests/worksheet-browser.cjs`—use an externally supplied Playwright runtime and a running app (`QUOTE_TEST_URL`, default `http://localhost:8504` for all four). They verify template insertion, retained template edits, failed storage writes, backup download/import/cancellation, keyboard controls, mobile overflow, and print output. The screenshot uses clearly labeled example data. Local verification used Node 20.19.0, a later maintenance patch, rather than claiming it existed at the January milestone.
+Browser checks use an externally supplied Playwright runtime. Start the production app, set `QUOTE_TEST_URL` to its URL, then run:
+
+```sh
+export QUOTE_TEST_URL=http://localhost:8604
+for suite in browser-regressions templates-browser backups-browser worksheet-browser revisions-browser template-portability-browser organization-browser workflow-2026-browser print-2026-browser; do
+  node "tests/$suite.cjs"
+done
+```
+
+The four inherited suites default to port 8504; the five 2026 suites default to 8604. Set the variable explicitly when using another port. They cover real browser persistence, imports and downloads, interrupted edits, storage failures, retained source identities, keyboard recovery, mobile overflow, and print output. The worksheet suite refreshes the sample screenshot.
+
+Local verification used Node 20.19.0 and current Chrome. The final static production build reported 18.9 kB for the root route and 106 kB first-load JavaScript; these are build measurements, not a claim about page speed on users’ devices. All 130 locked dependency versions were checked against a January 1, 2026 cutoff. The dependency lock remains unchanged from the 2025 baseline.
 
 ## Project history and technology
 
