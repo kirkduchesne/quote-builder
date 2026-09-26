@@ -1,8 +1,8 @@
-# Quote Builder
+# Tallyleaf
 
-A local quote worksheet for turning repeatable services into clear, printable estimates. Build line items, reuse service templates, keep named drafts and revision snapshots, and move quotes or service templates between browsers with validated JSON backups.
+**Estimates, neatly tallied.** Tallyleaf (formerly Quote Builder) is a private, local-first worksheet for turning repeatable services into clear, printable estimates. Build line items, reuse service templates, keep named drafts and revision snapshots, and move quotes or service templates between browsers with validated JSON backups.
 
-![Quote Builder with an example estimate](docs/preview.png)
+![Tallyleaf with an example estimate](docs/preview.png)
 
 ## Run
 
@@ -26,6 +26,17 @@ Open `http://localhost:3000`. For a production build, run `npm run build` follow
 - Print the quote name, reference, ordered lines, discount, totals, and notes. Editing controls stay off the printout.
 
 Finish a line with **Add item** or **Update item**, or use **Cancel line** / Escape before saving. Changing a quote name and saving renames the draft. Switching quotes asks before discarding unfinished quote edits. Template edits remain available when switching quotes.
+
+## Design
+
+The interface uses shadcn/ui conventions: components under `components/ui/` read HSL design tokens declared as CSS variables in `app/globals.css` and mapped in `tailwind.config.js`.
+
+- **Brand:** the Tallyleaf mark is a leaf whose veins are tally marks (`components/brand.tsx`, `app/icon.svg`). Forest ink (`--primary`) carries actions, brass (`--brass`) marks accents and history, and warm paper (`--paper`) frames the worksheet.
+- **Layout:** a Quote library sidebar (drafts, filters, archive, backups, revision history) sits beside a paper-style worksheet with a live running total, a line composer, a tabular item list and a totals summary. It collapses to one column on small screens.
+- **Type and icons:** system serif display faces and system sans text, with tabular figures for money. Icons are inline SVGs, so no font or icon package is fetched.
+- **Print:** printouts carry a small Tallyleaf header, the ordered lines, right-aligned totals, notes and a "Prepared with Tallyleaf" footer; editing controls stay hidden.
+
+Browser storage keys, backup `kind` values and download filenames keep their original `quote-builder` prefix so existing saved data and backups continue to load.
 
 ## Storage and limits
 
@@ -63,7 +74,7 @@ done
 
 The four inherited suites default to port 8504; the five 2026 suites default to 8604. Set the variable explicitly when using another port. They cover real browser persistence, imports and downloads, interrupted edits, storage failures, retained source identities, keyboard recovery, mobile overflow, and print output. The worksheet suite refreshes the sample screenshot.
 
-Local verification used Node 20.19.0 and current Chrome. The final static production build reported 18.9 kB for the root route and 106 kB first-load JavaScript; these are build measurements, not a claim about page speed on users’ devices. All 130 locked dependency versions were checked against a January 1, 2026 cutoff. The dependency lock remains unchanged from the 2025 baseline.
+Local verification used Node 20.19.0 and current Chrome. After the Tallyleaf redesign, the static production build reported 22.5 kB for the root route and 110 kB first-load JavaScript (previously 18.9 kB and 106 kB); these are build measurements, not a claim about page speed on users’ devices. All 130 locked dependency versions were checked against a January 1, 2026 cutoff. The redesign adds no dependencies; apart from the package name, the lock remains unchanged from the 2025 baseline.
 
 ## Project history and technology
 
@@ -76,4 +87,4 @@ This is a present-day reconstruction created in **September 2026**. Historical c
 
 The 2026 state retains the 2025 baseline: Next.js 14.2.22, React 18.3.1, TypeScript 5.3.3, and Tailwind CSS 3.4.1. The January framework update was resolved with a January 7, 2025 cutoff; all 130 locked package versions were checked against publication dates. These historical dependencies have known advisories and are intended for local portfolio demonstration, not current production deployment.
 
-Button and Input retain their original shadcn/ui source from revision [`c21ecfb665214e18cd5914ea319f925cd676e786`](https://github.com/shadcn-ui/ui/tree/c21ecfb665214e18cd5914ea319f925cd676e786), under `apps/www/registry/default/ui/`. The upstream MIT license is preserved in [SHADCN-LICENSE.md](SHADCN-LICENSE.md).
+Card, Badge, Textarea and Alert follow the shadcn/ui source patterns; Separator and NativeSelect are dependency-free equivalents that avoid adding Radix packages. Button and Input retain their original shadcn/ui source from revision [`c21ecfb665214e18cd5914ea319f925cd676e786`](https://github.com/shadcn-ui/ui/tree/c21ecfb665214e18cd5914ea319f925cd676e786), under `apps/www/registry/default/ui/`. The upstream MIT license is preserved in [SHADCN-LICENSE.md](SHADCN-LICENSE.md).
