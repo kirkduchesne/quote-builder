@@ -1,0 +1,52 @@
+const assert = require('node:assert/strict');
+const t = require('../.test-build/templates.js');
+const sample = {
+  id: 1,
+  name: 'Design',
+  description: 'Design work',
+  quantity: 1,
+  cents: 10000,
+};
+assert(t.validTemplate(sample));
+assert(!t.validTemplate({ ...sample, quantity: 0 }));
+assert.deepEqual(
+  t.parseTemplates(JSON.stringify({ version: 1, templates: [sample] })),
+  [sample]
+);
+assert.throws(() =>
+  t.parseTemplates(JSON.stringify({ version: 1, templates: [sample, sample] }))
+);
+for (const raw of [
+  '',
+  'null',
+  '{}',
+  '{',
+  JSON.stringify({ version: 2, templates: [] }),
+  JSON.stringify({ version: 1, templates: Array(31).fill(sample) }),
+])
+  assert.throws(() => t.parseTemplates(raw));
+for (const patch of [
+  { name: ' ' },
+  { name: 'x'.repeat(81) },
+  { description: '' },
+  { cents: 0.5 },
+  { quantity: 1000 },
+])
+  assert(!t.validTemplate({ ...sample, ...patch }));
+assert.equal(t.createTemplate([sample], sample)[1].id, 2);
+assert.throws(() => t.createTemplate(Array(30).fill(sample), sample));
+assert.equal(
+  t.updateTemplate([sample], { ...sample, name: 'Updated' })[0].name,
+  'Updated'
+);
+assert.throws(() => t.updateTemplate([], { ...sample }));
+assert.deepEqual(t.deleteTemplate([sample], 1), []);
+assert.deepEqual(t.deleteTemplate([sample], 2), [sample]);
+assert.equal(t.searchTemplates([sample], ' WORK ').length, 1);
+assert.equal(t.searchTemplates([sample], 'missing').length, 0);
+assert.equal(t.templateItem(sample, []).cents, 10000);
+assert.throws(() => t.templateItem(sample, Array(100).fill({ id: 1 })));
+assert(t.validTemplate({ ...sample, cents: 99999999, quantity: 999 }));
+assert(!t.validTemplate({ ...sample, cents: 100000000 }));
+assert(!t.validTemplate({ ...sample, quantity: 1.5 }));
+assert.equal(t.templateItem({ ...sample, cents: 0 }, []).cents, 0);

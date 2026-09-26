@@ -6,7 +6,15 @@ export const metadata = {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <a
+          href="#quote-workspace"
+          className="sr-only focus:not-sr-only focus:block focus:p-4 print:hidden"
+        >
+          Skip to quote workspace
+        </a>
+        {children}
+      </body>
     </html>
   );
 }
