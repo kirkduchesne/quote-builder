@@ -157,7 +157,11 @@ export function TemplateManager({
           <span id="templates-title" className="font-semibold">
             Reusable service templates
           </span>
-          <Badge variant="secondary" className="ml-auto tabular-nums">
+          <Badge
+            aria-hidden="true"
+            variant="secondary"
+            className="ml-auto tabular-nums"
+          >
             {templates.length}/30
           </Badge>
         </summary>
@@ -258,7 +262,6 @@ export function TemplateManager({
             <label htmlFor="template-search">Find a service template</label>
             <Input
               id="template-search"
-              type="search"
               placeholder="Search by name or description"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

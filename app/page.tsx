@@ -25,7 +25,7 @@ export default function Page() {
           </Badge>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6 sm:pt-10">
+      <main className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6 sm:pt-10 print:p-0">
         <section className="mb-8 max-w-2xl print:hidden">
           <p className="eyebrow text-brass-foreground">Project estimate worksheet</p>
           <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">

@@ -295,7 +295,10 @@ export function DraftWorkspace() {
         <Card className="shadow-soft">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between gap-3">
-              <CardTitle className="flex items-center gap-2 font-display text-xl">
+              <CardTitle
+                as="h2"
+                className="flex items-center gap-2 font-display text-xl"
+              >
                 <FolderIcon className="h-5 w-5 text-primary" />
                 Quote library
               </CardTitle>
@@ -406,7 +409,6 @@ export function DraftWorkspace() {
                 <label htmlFor="draft-search">Find saved drafts</label>
                 <Input
                   id="draft-search"
-                  type="search"
                   placeholder="Name or reference"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}

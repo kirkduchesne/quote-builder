@@ -147,9 +147,9 @@ export function QuoteForm({
         className="h-1.5 bg-gradient-to-r from-primary via-primary to-brass print:hidden"
       />
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-dashed px-5 pb-5 pt-6 sm:px-8 print:hidden">
-        <div>
+        <div className="min-w-0">
           <p className="eyebrow">Estimate worksheet</p>
-          <p className="mt-1 font-display text-2xl font-semibold tracking-tight">
+          <p className="mt-1 font-display text-2xl font-semibold tracking-tight [overflow-wrap:anywhere]">
             {normalizedQuoteName(name) || 'Untitled quote'}
           </p>
         </div>

@@ -95,7 +95,11 @@ export function RevisionHistory({
           Saved revision history
         </span>
         {ready && history.length > 0 ? (
-          <Badge variant="secondary" className="ml-auto tabular-nums">
+          <Badge
+            aria-hidden="true"
+            variant="secondary"
+            className="ml-auto tabular-nums"
+          >
             {history.length}/40
           </Badge>
         ) : null}
