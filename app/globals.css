@@ -46,3 +46,11 @@
     margin-bottom: 8mm;
   }
 }
+
+@layer base {
+  summary:focus-visible,
+  select:focus-visible,
+  input[type='file']:focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-slate-700;
+  }
+}

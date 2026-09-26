@@ -10,6 +10,11 @@ import {
   searchTemplates,
   type Template,
 } from '@/lib/templates';
+import {
+  downloadTemplateBackup,
+  readTemplateBackupFile,
+  mergeTemplateBackup,
+} from '@/lib/template-backups';
 import { loadTemplates, saveTemplates } from '@/lib/template-storage';
 export function TemplateManager({
   onInsert,
@@ -17,6 +22,9 @@ export function TemplateManager({
   onInsert: (template: Template) => void;
 }) {
   const [templates, setTemplates] = useState<Template[]>([]);
+  const templatesRef = useRef<Template[]>([]);
+  const importBusy = useRef(false);
+  const [importing, setImporting] = useState(false);
   const [ready, setReady] = useState(false);
   const [message, setMessage] = useState('');
   const nameInput = useRef<HTMLInputElement>(null);
@@ -26,12 +34,13 @@ export function TemplateManager({
     const loaded = loadTemplates({
       getItem: (key) => localStorage.getItem(key),
     });
+    templatesRef.current = loaded.templates;
     setTemplates(loaded.templates);
     raw.current = loaded.raw;
     readable.current = loaded.readable;
     if (!loaded.readable)
       setMessage(
-        'Saved templates could not be read. Changes will be session-only and leave saved data untouched.'
+        'Saved templates could not be read. Changes will be session-only and leave saved data untouched.',
       );
     setReady(true);
   }, []);
@@ -60,6 +69,7 @@ export function TemplateManager({
     return () => window.removeEventListener('beforeunload', warn);
   }, [pending, name, description, price, quantity, editing]);
   function persist(next: Template[]) {
+    templatesRef.current = next;
     setTemplates(next);
     try {
       if (!readable.current)
@@ -70,6 +80,39 @@ export function TemplateManager({
     } catch (error) {
       setPending(true);
       setMessage((error as Error).message + ' Changes are session-only.');
+    }
+  }
+  async function importFile(file: File) {
+    if (importBusy.current) return;
+    importBusy.current = true;
+    setImporting(true);
+    try {
+      const incoming = await readTemplateBackupFile(file);
+      if (incoming.length === 0) {
+        setMessage('The template backup is empty. Nothing changed.');
+        return;
+      }
+      const merged = mergeTemplateBackup(templatesRef.current, incoming);
+      if (
+        !window.confirm(
+          'Import ' +
+            incoming.length +
+            ' service templates (' +
+            (30 - merged.length) +
+            ' spaces remain afterward)? Existing templates and unfinished edits are kept.',
+        )
+      ) {
+        setMessage(
+          'Template import cancelled. Templates and unfinished edits are unchanged.',
+        );
+        return;
+      }
+      persist(merged);
+    } catch (error) {
+      setMessage((error as Error).message);
+    } finally {
+      importBusy.current = false;
+      setImporting(false);
     }
   }
   function submit(e: FormEvent<HTMLFormElement>) {
@@ -87,7 +130,7 @@ export function TemplateManager({
       persist(
         editing === null
           ? createTemplate(templates, fields)
-          : updateTemplate(templates, { ...fields, id: editing })
+          : updateTemplate(templates, { ...fields, id: editing }),
       );
       setName('');
       setDescription('');
@@ -111,6 +154,56 @@ export function TemplateManager({
         >
           Reusable service templates
         </summary>
+        <details className="my-3">
+          <summary className="cursor-pointer font-medium">
+            Import or export service templates
+          </summary>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!ready}
+            onClick={() => {
+              try {
+                downloadTemplateBackup(templates);
+                setMessage(
+                  'Saved service templates exported. Unfinished edits are excluded.',
+                );
+              } catch {
+                setMessage(
+                  'Template download could not start. Keep this page open and try again.',
+                );
+              }
+            }}
+          >
+            Export service templates
+          </Button>
+          <label htmlFor="template-backup" className="mt-3">
+            Import service-template backup
+          </label>
+          <input
+            id="template-backup"
+            type="file"
+            accept=".json,application/json"
+            disabled={!ready || importing}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.target.value = '';
+              if (file) void importFile(file);
+            }}
+          />
+          {importing && <p role="status">Reading service-template backup…</p>}
+        </details>
+        {importing &&
+          (name ||
+            description ||
+            price ||
+            quantity !== '1' ||
+            editing !== null) && (
+            <p className="text-sm">
+              Your unfinished template stays open during import. Save it
+              separately when ready.
+            </p>
+          )}
         <form onSubmit={submit} className="mt-3 grid gap-3 sm:grid-cols-2">
           <div>
             <label htmlFor="template-name">Template name</label>
@@ -172,6 +265,12 @@ export function TemplateManager({
             </Button>
           ) : null}
         </form>
+        {pending && (
+          <p className="rounded border border-amber-700 p-3">
+            Template changes are session-only. Export service templates before
+            closing; unfinished form edits must be saved first.
+          </p>
+        )}
         <p role="status">{ready ? message : 'Loading templates…'}</p>
         <label htmlFor="template-search">Find a service template</label>
         <Input
@@ -179,6 +278,20 @@ export function TemplateManager({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <p className="text-sm">
+          Template storage:{' '}
+          {!ready
+            ? 'loading'
+            : pending
+            ? 'session-only changes need export'
+            : readable.current
+            ? 'loaded successfully'
+            : 'unreadable saved data protected'}
+          .
+        </p>
+        <p className="text-sm">
+          {30 - templates.length} service template spaces remaining.
+        </p>
         <p>{searchTemplates(templates, search).length} matching templates</p>
         <ul>
           {searchTemplates(templates, search).map((template) => (
@@ -198,7 +311,7 @@ export function TemplateManager({
                 onClick={() => {
                   if (
                     window.confirm(
-                      'Delete service template ' + template.name + '?'
+                      'Delete service template ' + template.name + '?',
                     )
                   )
                     persist(deleteTemplate(templates, template.id));
