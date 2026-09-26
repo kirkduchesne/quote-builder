@@ -2,6 +2,9 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Alert } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { DownloadIcon, LayersIcon, PlusIcon } from '@/components/icons';
 import { parseCents, dollars } from '@/lib/money';
 import {
   createTemplate,
@@ -142,213 +145,275 @@ export function TemplateManager({
       setMessage((error as Error).message);
     }
   }
+  const matches = searchTemplates(templates, search);
   return (
     <section
       aria-labelledby="templates-title"
-      className="mb-6 rounded border p-4 print:hidden"
+      className="rounded-lg border bg-card shadow-sm print:hidden"
     >
-      <details>
-        <summary
-          id="templates-title"
-          className="cursor-pointer text-lg font-semibold"
-        >
-          Reusable service templates
-        </summary>
-        <details className="my-3">
-          <summary className="cursor-pointer font-medium">
-            Import or export service templates
-          </summary>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={!ready}
-            onClick={() => {
-              try {
-                downloadTemplateBackup(templates);
-                setMessage(
-                  'Saved service templates exported. Unfinished edits are excluded.',
-                );
-              } catch {
-                setMessage(
-                  'Template download could not start. Keep this page open and try again.',
-                );
-              }
-            }}
+      <details className="disclosure group">
+        <summary className="px-4 py-3.5">
+          <LayersIcon className="h-4 w-4 text-primary" />
+          <span id="templates-title" className="font-semibold">
+            Reusable service templates
+          </span>
+          <Badge
+            aria-hidden="true"
+            variant="secondary"
+            className="ml-auto tabular-nums"
           >
-            Export service templates
-          </Button>
-          <label htmlFor="template-backup" className="mt-3">
-            Import service-template backup
-          </label>
-          <input
-            id="template-backup"
-            type="file"
-            accept=".json,application/json"
-            disabled={!ready || importing}
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              event.target.value = '';
-              if (file) void importFile(file);
-            }}
-          />
-          {importing && <p role="status">Reading service-template backup…</p>}
-        </details>
-        {importing &&
-          (name ||
-            description ||
-            price ||
-            quantity !== '1' ||
-            editing !== null) && (
-            <p className="text-sm">
-              Your unfinished template stays open during import. Save it
-              separately when ready.
+            {templates.length}/30
+          </Badge>
+        </summary>
+        <div className="space-y-4 border-t px-4 pb-4 pt-4">
+          <form
+            onSubmit={submit}
+            className="grid gap-3 rounded-md bg-muted/50 p-3 sm:grid-cols-2"
+          >
+            <p className="eyebrow sm:col-span-2">
+              {editing === null ? 'Create a template' : 'Edit template'}
             </p>
+            <div>
+              <label htmlFor="template-name">Template name</label>
+              <Input
+                ref={nameInput}
+                id="template-name"
+                value={name}
+                maxLength={80}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="template-description">Template description</label>
+              <Input
+                id="template-description"
+                value={description}
+                maxLength={120}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="template-quantity">Template quantity</label>
+              <Input
+                id="template-quantity"
+                inputMode="numeric"
+                className="tabular-nums"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="template-price">Template unit price (USD)</label>
+              <Input
+                id="template-price"
+                inputMode="decimal"
+                className="tabular-nums"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                required
+              />
+            </div>
+            <div className="flex flex-wrap gap-2 sm:col-span-2">
+              <Button disabled={!ready} type="submit" size="sm">
+                {editing === null ? 'Save template' : 'Update template'}
+              </Button>
+              {editing !== null ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setEditing(null);
+                    setName('');
+                    setDescription('');
+                    setQuantity('1');
+                    setPrice('');
+                  }}
+                >
+                  Cancel template edit
+                </Button>
+              ) : null}
+            </div>
+          </form>
+          {importing &&
+            (name ||
+              description ||
+              price ||
+              quantity !== '1' ||
+              editing !== null) && (
+              <p className="text-sm text-muted-foreground">
+                Your unfinished template stays open during import. Save it
+                separately when ready.
+              </p>
+            )}
+          {pending && (
+            <Alert as="p" variant="warning">
+              Template changes are session-only. Export service templates
+              before closing; unfinished form edits must be saved first.
+            </Alert>
           )}
-        <form onSubmit={submit} className="mt-3 grid gap-3 sm:grid-cols-2">
-          <div>
-            <label htmlFor="template-name">Template name</label>
-            <Input
-              ref={nameInput}
-              id="template-name"
-              value={name}
-              maxLength={80}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="template-description">Template description</label>
-            <Input
-              id="template-description"
-              value={description}
-              maxLength={120}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="template-quantity">Template quantity</label>
-            <Input
-              id="template-quantity"
-              inputMode="numeric"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="template-price">Template unit price (USD)</label>
-            <Input
-              id="template-price"
-              inputMode="decimal"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              required
-            />
-          </div>
-          <Button disabled={!ready} type="submit">
-            {editing === null ? 'Save template' : 'Update template'}
-          </Button>
-          {editing !== null ? (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setEditing(null);
-                setName('');
-                setDescription('');
-                setQuantity('1');
-                setPrice('');
-              }}
-            >
-              Cancel template edit
-            </Button>
-          ) : null}
-        </form>
-        {pending && (
-          <p className="rounded border border-amber-700 p-3">
-            Template changes are session-only. Export service templates before
-            closing; unfinished form edits must be saved first.
+          <p role="status" className="status-line text-sm text-primary">
+            {ready ? message : 'Loading templates…'}
           </p>
-        )}
-        <p role="status">{ready ? message : 'Loading templates…'}</p>
-        <label htmlFor="template-search">Find a service template</label>
-        <Input
-          id="template-search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <p className="text-sm">
-          Template storage:{' '}
-          {!ready
-            ? 'loading'
-            : pending
-            ? 'session-only changes need export'
-            : readable.current
-            ? 'loaded successfully'
-            : 'unreadable saved data protected'}
-          .
-        </p>
-        <p className="text-sm">
-          {30 - templates.length} service template spaces remaining.
-        </p>
-        <p>{searchTemplates(templates, search).length} matching templates</p>
-        <ul>
-          {searchTemplates(templates, search).map((template) => (
-            <li className="mt-3 border-t pt-3" key={template.id}>
+          <div>
+            <label htmlFor="template-search">Find a service template</label>
+            <Input
+              id="template-search"
+              placeholder="Search by name or description"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <p>{matches.length} matching templates</p>
+            <p>{30 - templates.length} service template spaces remaining.</p>
+          </div>
+          <ul className="divide-y rounded-md border">
+            {matches.map((template) => (
+              <li
+                className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2.5"
+                key={template.id}
+              >
+                <div className="min-w-[12rem] flex-1">
+                  <strong className="block font-medium [overflow-wrap:anywhere]">
+                    {template.name}
+                  </strong>
+                  <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
+                    {template.description} ·{' '}
+                    <span className="tabular-nums">
+                      {template.quantity} × {dollars(template.cents)}
+                    </span>
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-8 gap-1.5"
+                    onClick={() => onInsert(template)}
+                  >
+                    <PlusIcon className="h-3.5 w-3.5" />
+                    Use<span className="sr-only"> template {template.name}</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-8"
+                    onClick={() => {
+                      if (
+                        (name ||
+                          description ||
+                          price ||
+                          quantity !== '1' ||
+                          editing !== null) &&
+                        !window.confirm('Discard unfinished template edits?')
+                      )
+                        return;
+                      setEditing(template.id);
+                      setName(template.name);
+                      setDescription(template.description);
+                      setQuantity(String(template.quantity));
+                      setPrice((template.cents / 100).toFixed(2));
+                    }}
+                  >
+                    Edit
+                    <span className="sr-only"> template {template.name}</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    disabled={editing !== null}
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          'Delete service template ' + template.name + '?',
+                        )
+                      )
+                        persist(deleteTemplate(templates, template.id));
+                    }}
+                  >
+                    Delete
+                    <span className="sr-only"> template {template.name}</span>
+                  </Button>
+                </div>
+              </li>
+            ))}
+            {!templates.length ? (
+              <li className="px-3 py-6 text-center text-sm text-muted-foreground">
+                No service templates yet.
+              </li>
+            ) : null}
+          </ul>
+          <details className="disclosure">
+            <summary className="text-sm font-medium">
+              Import or export service templates
+            </summary>
+            <div className="mt-3 space-y-3">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onInsert(template)}
-              >
-                Use template {template.name}
-              </Button>
-              <strong>{template.name}</strong>
-              <Button
-                type="button"
-                variant="ghost"
-                disabled={editing !== null}
+                size="sm"
+                className="gap-2"
+                disabled={!ready}
                 onClick={() => {
-                  if (
-                    window.confirm(
-                      'Delete service template ' + template.name + '?',
-                    )
-                  )
-                    persist(deleteTemplate(templates, template.id));
+                  try {
+                    downloadTemplateBackup(templates);
+                    setMessage(
+                      'Saved service templates exported. Unfinished edits are excluded.',
+                    );
+                  } catch {
+                    setMessage(
+                      'Template download could not start. Keep this page open and try again.',
+                    );
+                  }
                 }}
               >
-                Delete template {template.name}
+                <DownloadIcon />
+                Export service templates
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  if (
-                    (name ||
-                      description ||
-                      price ||
-                      quantity !== '1' ||
-                      editing !== null) &&
-                    !window.confirm('Discard unfinished template edits?')
-                  )
-                    return;
-                  setEditing(template.id);
-                  setName(template.name);
-                  setDescription(template.description);
-                  setQuantity(String(template.quantity));
-                  setPrice((template.cents / 100).toFixed(2));
-                }}
-              >
-                Edit template {template.name}
-              </Button>
-              <p>
-                {template.description} · {template.quantity} ×{' '}
-                {dollars(template.cents)}
-              </p>
-            </li>
-          ))}
-        </ul>
-        {!templates.length ? <p>No service templates yet.</p> : null}
+              <div>
+                <label htmlFor="template-backup">
+                  Import service-template backup
+                </label>
+                <input
+                  id="template-backup"
+                  className="file-input"
+                  type="file"
+                  accept=".json,application/json"
+                  disabled={!ready || importing}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = '';
+                    if (file) void importFile(file);
+                  }}
+                />
+              </div>
+              {importing && (
+                <p role="status" className="text-sm text-muted-foreground">
+                  Reading service-template backup…
+                </p>
+              )}
+            </div>
+          </details>
+          <p className="text-xs text-muted-foreground">
+            Template storage:{' '}
+            {!ready
+              ? 'loading'
+              : pending
+              ? 'session-only changes need export'
+              : readable.current
+              ? 'loaded successfully'
+              : 'unreadable saved data protected'}
+            .
+          </p>
+        </div>
       </details>
     </section>
   );

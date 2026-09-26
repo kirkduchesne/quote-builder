@@ -2,14 +2,111 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Tallyleaf brand tokens (shadcn/ui CSS-variable convention, HSL channels).
+ * Forest ink for primary actions, brass for accents, warm paper surfaces.
+ */
 @layer base {
+  :root {
+    --background: 42 33% 96%;
+    --foreground: 192 28% 17%;
+    --card: 0 0% 100%;
+    --card-foreground: 192 28% 17%;
+    --paper: 44 60% 99%;
+    --primary: 165 44% 24%;
+    --primary-foreground: 45 50% 98%;
+    --secondary: 150 22% 93%;
+    --secondary-foreground: 192 28% 17%;
+    --muted: 42 22% 93%;
+    --muted-foreground: 190 10% 37%;
+    --accent: 150 26% 92%;
+    --accent-foreground: 165 44% 18%;
+    --destructive: 4 50% 42%;
+    --destructive-foreground: 0 0% 100%;
+    --brass: 34 64% 44%;
+    --brass-foreground: 30 62% 24%;
+    --brass-soft: 40 80% 92%;
+    --warning: 30 70% 30%;
+    --warning-soft: 42 90% 94%;
+    --border: 40 16% 86%;
+    --input: 170 10% 52%;
+    --ring: 34 64% 44%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
   body {
-    @apply bg-stone-100 text-foreground;
+    @apply bg-background font-sans text-foreground antialiased;
+    background-image: radial-gradient(
+        circle at 1px 1px,
+        hsl(var(--foreground) / 0.07) 1px,
+        transparent 0
+      ),
+      radial-gradient(
+        ellipse 80% 50% at 50% -10%,
+        hsl(var(--brass) / 0.14),
+        transparent 70%
+      );
+    background-size: 22px 22px, 100% 100%;
+    background-attachment: fixed;
   }
   label {
-    @apply mb-2 block text-sm font-medium;
+    @apply mb-1.5 block text-sm font-medium text-foreground;
+  }
+  select {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+  summary:focus-visible,
+  input[type='file']:focus-visible {
+    @apply rounded-md outline outline-2 outline-offset-2 outline-ring;
+  }
+  ::selection {
+    background: hsl(var(--brass) / 0.28);
   }
 }
+
+@layer components {
+  /* Disclosure: <details> with a rotating chevron instead of the UA marker. */
+  .disclosure > summary {
+    @apply flex cursor-pointer select-none list-none items-center gap-2;
+  }
+  .disclosure > summary::-webkit-details-marker {
+    display: none;
+  }
+  .disclosure > summary::before {
+    content: '';
+    @apply inline-block h-2 w-2 shrink-0 rotate-[-45deg] border-b-2 border-r-2 border-current opacity-60 transition-transform duration-200;
+  }
+  .disclosure[open] > summary::before {
+    @apply rotate-45;
+  }
+
+  .eyebrow {
+    @apply text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground;
+  }
+
+  /* Native file input styled to sit with shadcn buttons. */
+  .file-input {
+    @apply block w-full max-w-full text-sm text-muted-foreground file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-solid file:border-input file:bg-background file:px-3 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:bg-accent disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* Status regions stay in the accessibility tree but take no space when empty. */
+  .status-line:empty {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+}
+
+@page {
+  margin: 18mm;
+}
+
 @media print {
   body {
     background: white;
@@ -21,9 +118,6 @@
   li {
     break-inside: avoid;
   }
-}
-
-@media print {
   #quote-workspace li {
     break-inside: avoid;
     page-break-inside: avoid;
@@ -31,26 +125,13 @@
   #quote-workspace dl {
     break-inside: avoid;
   }
-}
-
-@page {
-  margin: 18mm;
-}
-@media print {
   #quote-workspace {
     padding: 0;
     box-shadow: none;
     border: 0;
+    background: white;
   }
   #quote-workspace h2 {
     margin-bottom: 8mm;
-  }
-}
-
-@layer base {
-  summary:focus-visible,
-  select:focus-visible,
-  input[type='file']:focus-visible {
-    @apply outline outline-2 outline-offset-2 outline-slate-700;
   }
 }

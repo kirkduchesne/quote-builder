@@ -1,4 +1,4 @@
-name: Verify quote builder
+name: Verify Tallyleaf
 on:
   push:
   pull_request:
