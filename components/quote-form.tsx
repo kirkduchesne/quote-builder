@@ -56,7 +56,18 @@ export function QuoteForm({
   const [name, setName] = useState(initial.name);
   const [reference, setReference] = useState(initial.reference);
   const [notes, setNotes] = useState(initial.notes);
+  const mounted = useRef(false);
   useEffect(() => {
+    // State already starts from `initial`; resetting on mount would wipe
+    // anything typed before this deferred effect runs.
+    if (!mounted.current) {
+      mounted.current = true;
+      requestAnimationFrame(() => {
+        if (document.activeElement === document.body)
+          document.getElementById('quote-name')?.focus();
+      });
+      return;
+    }
     setItems(initial.items);
     setName(initial.name);
     setReference(initial.reference);
