@@ -164,7 +164,7 @@ export function QuoteForm({
             {normalizedQuoteName(name) || 'Untitled quote'}
           </p>
         </div>
-        <div className="text-right" aria-hidden="true">
+        <div className="sm:text-right" aria-hidden="true">
           <p className="eyebrow">Running total</p>
           <p className="mt-1 font-display text-2xl font-semibold tabular-nums text-primary">
             {dollars(totals.total)}
@@ -182,7 +182,7 @@ export function QuoteForm({
         {name}
       </h2>
       {reference ? (
-        <p className="hidden break-words [overflow-wrap:anywhere] print:block">
+        <p className="hidden break-words [overflow-wrap:anywhere] print:mb-6 print:block">
           <strong>Reference:</strong> {reference}
         </p>
       ) : null}
