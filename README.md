@@ -1,6 +1,6 @@
 # Tallyleaf
 
-**Estimates, neatly tallied.** Tallyleaf (formerly Quote Builder) is a private, local-first worksheet for turning repeatable services into clear, printable estimates. Build line items, reuse service templates, keep named drafts and revision snapshots, and move quotes or service templates between browsers with validated JSON backups.
+**Estimates, neatly tallied.** Tallyleaf is a browser-local worksheet for turning repeatable services into clear, printable estimates. Build line items, reuse service templates, keep named drafts and revision snapshots, and move quotes or service templates between browsers with validated JSON backups.
 
 ![Tallyleaf with an example estimate](docs/preview.png)
 
@@ -74,17 +74,14 @@ done
 
 The four inherited suites default to port 8504; the five 2026 suites default to 8604. Set the variable explicitly when using another port. They cover real browser persistence, imports and downloads, interrupted edits, storage failures, retained source identities, keyboard recovery, mobile overflow, and print output. The worksheet suite refreshes the sample screenshot.
 
-Local verification used Node 20.19.0 and current Chrome. After the Tallyleaf redesign, the static production build reported 22.5 kB for the root route and 110 kB first-load JavaScript (previously 18.9 kB and 106 kB); these are build measurements, not a claim about page speed on users’ devices. All 130 locked dependency versions were checked against a January 1, 2026 cutoff. The redesign adds no dependencies; apart from the package name, the lock remains unchanged from the 2025 baseline.
+Local verification used Node 20.19.0 and current Chrome. After the Tallyleaf redesign, the static production build reported 22.5 kB for the root route and 110 kB first-load JavaScript (previously 18.9 kB and 106 kB); these are build measurements, not a claim about page speed on users’ devices.
 
-## Project history and technology
+## Technology and credits
 
-This is a present-day reconstruction created in **September 2026**. Historical commit dates were intentionally assigned and do not represent original work or publication in those years.
-
-- **2023:** one-page line items, integer-cent totals, discounts, and printing.
-- **2024:** saved drafts, quote references and notes, line editing, and storage safeguards.
-- **2025:** service templates, draft organization, portable quote backups, and keyboard/print refinements.
-- **2026:** bounded revision recovery, template portability, draft archiving, and boundary/accessibility regression coverage.
-
-The 2026 state retains the 2025 baseline: Next.js 14.2.22, React 18.3.1, TypeScript 5.3.3, and Tailwind CSS 3.4.1. The January framework update was resolved with a January 7, 2025 cutoff; all 130 locked package versions were checked against publication dates. These historical dependencies have known advisories and are intended for local portfolio demonstration, not current production deployment.
+Next.js 14.2.22, React 18.3.1, TypeScript 5.3.3, and Tailwind CSS 3.4.1. The pinned dependencies have known advisories; review and upgrade them before production deployment.
 
 Card, Badge, Textarea and Alert follow the shadcn/ui source patterns; Separator and NativeSelect are dependency-free equivalents that avoid adding Radix packages. Button and Input retain their original shadcn/ui source from revision [`c21ecfb665214e18cd5914ea319f925cd676e786`](https://github.com/shadcn-ui/ui/tree/c21ecfb665214e18cd5914ea319f925cd676e786), under `apps/www/registry/default/ui/`. The upstream MIT license is preserved in [SHADCN-LICENSE.md](SHADCN-LICENSE.md).
+
+## Provenance
+
+Created in September 2026; earlier commit dates were intentionally assigned and do not indicate original development or publication dates.
